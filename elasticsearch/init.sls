@@ -33,5 +33,5 @@ configure_elasticsearch:
 start_elasticsearch:
   service.running:
     - name: elasticsearch
-    - require
+    - require:
       - pkg: elasticsearch
