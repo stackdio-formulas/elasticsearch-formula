@@ -1,0 +1,9 @@
+title: Elasticsearch formula
+description: Salt formula for installing some base components
+root_path: elasticsearch
+components:
+  - title: Elasticsearch
+    description: Elasticsearch
+    sls_path: elasticsearch
+
+pillar_defaults: {}
