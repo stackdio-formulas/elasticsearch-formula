@@ -1,8 +1,8 @@
 import_repo_key:
-  - cmd:
-    - run
-    - name: 'rpm --import https://packages.elasticsearch.org/GPG-KEY-elasticsearch'
-    - unless 'rpm -qa | grep elasticsearch'
+  cmd:
+  - run
+  - name: 'rpm --import https://packages.elasticsearch.org/GPG-KEY-elasticsearch'
+  - unless 'rpm -qa | grep elasticsearch'
 
 
 /etc/yum.repos.d/elasticsearch.repo:
@@ -24,7 +24,7 @@ elasticsearch:
 
 
 configure_elasticsearch:
-  - cmd:
-    - run
-    - name 'chkconfig --add elasticsearch'
-    - require: 'rpm -qa | grep elasticsearch'
+  cmd:
+  - run
+  - name 'chkconfig --add elasticsearch'
+  - require: 'rpm -qa | grep elasticsearch'
