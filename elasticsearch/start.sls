@@ -1,3 +1,6 @@
+include:
+  - elasticsearch.install
+
 configure_elasticsearch:
   cmd:
   - run
