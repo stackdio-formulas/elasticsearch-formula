@@ -2,8 +2,12 @@ title: Elasticsearch formula
 description: Salt formula for installing some base components
 root_path: elasticsearch
 components:
-  - title: Elasticsearch
-    description: Elasticsearch
-    sls_path: elasticsearch
+  - title: Elasticsearch Master
+    description: Elasticsearch Master
+    sls_path: elasticsearch.master
+  - title: Elasticsearch Datanode
+    description: Elasticsearch Datanode
+    sls_path: elasticsearch.data
+
 
 pillar_defaults: {}
