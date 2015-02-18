@@ -1,6 +1,6 @@
 {%- set master_fqdn = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.master', 'grains.items', 'compound').values()[0]['fqdn'] -%}
 
-cluster.name: {{ grains.stack_namespace }}
+cluster.name: {{ grains.namespace }}
 node.master: false
 node.data: true
 discovery.zen.ping.unicast.hosts: ["{{ master_fqdn }}"]
