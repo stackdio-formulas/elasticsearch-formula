@@ -8,6 +8,7 @@ include:
     - managed
     - mkdirs: false
     - source: salt://elasticsearch/etc/elasticsearch/elasticsearch-data.yml
+    - template: jinja
     - user: root
     - group: root
     - mode: 644
