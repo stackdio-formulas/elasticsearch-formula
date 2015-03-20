@@ -10,4 +10,7 @@ components:
     sls_path: elasticsearch.data
 
 
-pillar_defaults: {}
+pillar_defaults: 
+    elasticsearch:
+        heap_size: 1g
+
