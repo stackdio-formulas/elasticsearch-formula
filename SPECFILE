@@ -11,8 +11,8 @@ components:
 
 
 pillar_defaults:
-  elasticsearch:
-    heap_size: 1g
-    marvel:
-      install: true
-      version: latest
+    elasticsearch:
+        heap_size: 1g
+        marvel:
+            install: true
+            version: latest

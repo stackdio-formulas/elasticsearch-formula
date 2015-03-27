@@ -1,7 +1,9 @@
+{% set marvel_version = salt['pillar.get']('elasticsearch:marvel:version', 'latest') %}
+
 install_marvel:
   cmd:
   - run
-  - name: '/usr/share/elasticsearch/bin/plugin -i elasticsearch/marvel/{{ elasticsearch.marvel.version }}'
+  - name: '/usr/share/elasticsearch/bin/plugin -i elasticsearch/marvel/{{ marvel_version }}'
   - require:
     - pkg: elasticsearch
 
