@@ -1,6 +1,9 @@
 include:
   - elasticsearch.install
   - elasticsearch.start
+{% if salt['pillar.get']('elasticseaerch:marvel:install', True) %}
+  - elasticsearch.marvel
+{% endif %}
 
 elasticsearch_default_config:
   file:

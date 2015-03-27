@@ -1,6 +1,10 @@
 include:
   - elasticsearch.install
   - elasticsearch.start
+{% if salt['pillar.get']('cdh5:namenode:start_service', True) %}
+  - elasticsearch.marvel
+{% endif %}
+
 
 /etc/elasticsearch/elasticsearch.yml:
   file:

@@ -10,7 +10,9 @@ components:
     sls_path: elasticsearch.data
 
 
-pillar_defaults: 
-    elasticsearch:
-        heap_size: 1g
-
+pillar_defaults:
+  elasticsearch:
+    heap_size: 1g
+    marvel:
+      install: true
+      version: latest
