@@ -10,8 +10,9 @@ install_marvel:
 
 
 restart_elasticsearch:
-  service.restart:
+  service.running:
     - name: elasticsearch
+    - reload: true
     - require:
       - pkg: elasticsearch
       - file: /etc/elasticsearch/elasticsearch.yml
