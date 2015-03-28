@@ -6,13 +6,6 @@ install_marvel:
   - name: '/usr/share/elasticsearch/bin/plugin -i elasticsearch/marvel/{{ marvel_version }}'
   - require:
     - pkg: elasticsearch
+  - watch_in:
+    - service: start_elasticsearch
   - unless: '/usr/share/elasticsearch/bin/plugin -l | grep marvel'
-
-
-restart_elasticsearch:
-  service.running:
-    - name: elasticsearch
-    - reload: true
-    - require:
-      - pkg: elasticsearch
-      - file: /etc/elasticsearch/elasticsearch.yml
