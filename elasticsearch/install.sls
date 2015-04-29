@@ -34,5 +34,7 @@ elasticsearch:
     - mode: 755
     - require:
       - pkg: elasticsearch
+    - require_in:
+      - service: start_elasticsearch
 
 {% endfor %}

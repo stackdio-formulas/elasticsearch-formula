@@ -20,6 +20,8 @@ elasticsearch_default_config:
     - mode: 644
     - require:
       - pkg: elasticsearch
+    - watch_in:
+      - service: start_elasticsearch
 
 /etc/elasticsearch/elasticsearch.yml:
   file:
