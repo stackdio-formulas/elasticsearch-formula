@@ -23,10 +23,18 @@ elasticsearch:
       - file: /etc/yum.repos.d/elasticsearch.repo
 
 
-make_mnt_dirs:
-  cmd:
-  - script
-  - template: jinja
-  - user: root
-  - source: salt://elasticsearch/create_mnt_dirs.sh
-  - unless: '[ -d /mnt/elasticsearch ]'
+{% set dirs = ['', '/data', '/work', '/logs'] %}
+
+{% for dir in dirs %}
+/mnt/elasticsearch{{ dir }}:
+  file:
+    - directory
+    - user: elasticsearch
+    - group: elasticsearch
+    - mode: 755
+    - require:
+      - pkg: elasticsearch
+    - require_in:
+      - service: start_elasticsearch
+
+{% endfor %}

@@ -15,4 +15,5 @@ start_elasticsearch:
     - name: elasticsearch
     - require:
       - pkg: elasticsearch
+    - watch:
       - file: /etc/elasticsearch/elasticsearch.yml
