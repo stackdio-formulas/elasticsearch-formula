@@ -1,7 +1,7 @@
 import_repo_key:
   cmd:
   - run
-  - name: 'rpm --import https://packages.elasticsearch.org/GPG-KEY-elasticsearch'
+  - name: 'rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch'
   - unless: 'rpm -qa | grep elasticsearch'
 
 

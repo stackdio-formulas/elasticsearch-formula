@@ -12,6 +12,7 @@ components:
 
 pillar_defaults:
     elasticsearch:
+        version: 1.4
         heap_size: 1g
         replicas: 2
         marvel:
