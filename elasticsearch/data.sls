@@ -1,7 +1,7 @@
 include:
   - elasticsearch.install
   - elasticsearch.start
-{% if salt['pillar.get']('elasticseaerch:marvel:install', True) %}
+{% if salt['pillar.get']('elasticsearch:marvel:install', True) %}
   - elasticsearch.marvel
 {% endif %}
 
