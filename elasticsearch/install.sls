@@ -10,6 +10,7 @@ import_repo_key:
     - managed
     - mkdirs: false
     - source: salt://elasticsearch/etc/yum.repos.d/elasticsearch.repo
+    - template: jinja
     - user: root
     - group: root
     - mode: 644
