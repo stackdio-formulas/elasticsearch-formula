@@ -18,3 +18,7 @@ pillar_defaults:
         marvel:
             install: true
             version: latest
+        encrypted: false
+        encryption:
+            certificate: CHANGE_ME
+            private_key: CHANGE_ME
