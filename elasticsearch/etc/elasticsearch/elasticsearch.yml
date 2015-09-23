@@ -14,8 +14,8 @@
 {%- endif -%}
 
 cluster.name: {{ grains.namespace }}
-node.master: {{ master }}
-node.data: {{ data }}
+node.master: {{ master | lower }}
+node.data: {{ data | lower }}
 {% if data %}
 discovery.zen.ping.unicast.hosts: ["{{ master_fqdn }}"]
 {% endif %}
