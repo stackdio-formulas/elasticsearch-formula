@@ -28,9 +28,6 @@ shield.http.ssl: true
 shield.transport.ssl: true
 discovery.zen.ping.multicast.enabled: false
 
-shield.ssl.truststore.path: /etc/elasticsearch/elasticsearch.keystore
-shield.ssl.truststore.password: elasticsearch
-
 shield.ssl.keystore.path: /etc/elasticsearch/elasticsearch.keystore
 shield.ssl.keystore.password: elasticsearch
 shield.ssl.keystore.key_password: elasticsearch

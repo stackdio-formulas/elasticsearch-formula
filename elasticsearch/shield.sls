@@ -1,27 +1,49 @@
 
 install_license:
   cmd:
-  - run
-  - user: root
-  - name: '/usr/share/elasticsearch/bin/plugin -i elasticsearch/license/latest'
-  - require:
-    - pkg: elasticsearch
-  - require_in:
-    - service: start_elasticsearch
-  - unless: '/usr/share/elasticsearch/bin/plugin -l | grep license'
+    - run
+    - user: root
+    - name: '/usr/share/elasticsearch/bin/plugin -i elasticsearch/license/latest'
+    - require:
+      - pkg: elasticsearch
+    - require_in:
+      - service: start_elasticsearch
+    - unless: '/usr/share/elasticsearch/bin/plugin -l | grep license'
 
 
 install_shield:
   cmd:
-  - run
-  - user: root
-  - name: '/usr/share/elasticsearch/bin/plugin -i elasticsearch/shield/latest'
-  - require:
-    - pkg: elasticsearch
-  - require_in:
-    - service: start_elasticsearch
-  - unless: '/usr/share/elasticsearch/bin/plugin -l | grep shield'
+    - run
+    - user: root
+    - name: '/usr/share/elasticsearch/bin/plugin -i elasticsearch/shield/latest'
+    - require:
+      - pkg: elasticsearch
+      - cmd: install_license
+    - require_in:
+      - service: start_elasticsearch
+    - unless: '/usr/share/elasticsearch/bin/plugin -l | grep shield'
 
+create_shield_user:
+  cmd:
+    - run
+    - user: root
+    - name: '/usr/share/elasticsearch/bin/shield/esusers admin -p 123456 -r admin'
+    - require:
+      - cmd: install_shield
+    - require_in:
+      - service: start_elasticsearch
+
+# Must happen AFTER creating the user.. b/c the create user command adds the user to the config
+# in /usr/share/elasticsearch ...
+copy_shield_config:
+  cmd:
+    - run
+    - user: root
+    - name: 'cp -r /usr/share/elasticsearch/config/shield /etc/elasticsearch'
+    - require:
+      - cmd: create_shield_user
+    - require_in:
+      - service: start_elasticsearch
 
 /root/server.crt:
   file:
