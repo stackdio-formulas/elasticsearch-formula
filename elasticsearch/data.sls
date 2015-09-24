@@ -4,6 +4,9 @@ include:
 {% if salt['pillar.get']('elasticsearch:marvel:install', True) %}
   - elasticsearch.marvel
 {% endif %}
+{% if salt['pillar.get']('elasticsearch:encrypted', False) %}
+  - elasticsearch.shield
+{% endif %}
 
 elasticsearch_default_config:
   file:
@@ -27,7 +30,7 @@ elasticsearch_default_config:
   file:
     - managed
     - mkdirs: false
-    - source: salt://elasticsearch/etc/elasticsearch/elasticsearch-data.yml
+    - source: salt://elasticsearch/etc/elasticsearch/elasticsearch.yml
     - template: jinja
     - user: root
     - group: root

@@ -1,4 +1,8 @@
+{%- set master = 'elasticsearch.master' in grains.roles -%}
+{%- set data = 'elasticsearch.data' in grains.roles -%}
+{%- set shield = salt['pillar.get']('elasticsearch:encrypted', False) -%}
 {%- set master_fqdn = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.master', 'grains.items', 'compound').values()[0]['fqdn'] -%}
+
 {%- set num_shards = ((salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data', 'grains.items', 'compound') | length) / 2) | int -%}
 {%- if num_shards < 5 -%}
     {%- set num_shards = 5 -%}
@@ -10,12 +14,24 @@
 {%- endif -%}
 
 cluster.name: {{ grains.namespace }}
-node.master: false
-node.data: true
+node.master: {{ master | lower }}
+node.data: {{ data | lower }}
+{% if data %}
 discovery.zen.ping.unicast.hosts: ["{{ master_fqdn }}"]
+{% endif %}
 path.data: /mnt/elasticsearch/data
 path.work: /mnt/elasticsearch/work
 path.logs: /mnt/elasticsearch/logs
+
+{% if shield %}
+shield.http.ssl: true
+shield.transport.ssl: true
+discovery.zen.ping.multicast.enabled: false
+
+shield.ssl.keystore.path: /etc/elasticsearch/elasticsearch.keystore
+shield.ssl.keystore.password: elasticsearch
+shield.ssl.keystore.key_password: elasticsearch
+{% endif %}
 
 index:
   number_of_shards: {{ num_shards }}
