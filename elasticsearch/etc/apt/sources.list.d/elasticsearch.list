@@ -1,0 +1,2 @@
+{%- set es_version = salt['pillar.get']('elasticsearch:version', 'latest') -%}
+deb http://packages.elastic.co/elasticsearch/{{ es_version }}/debian stable main
