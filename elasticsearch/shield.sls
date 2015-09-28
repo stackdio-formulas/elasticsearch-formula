@@ -27,7 +27,7 @@ create_shield_user:
   cmd:
     - run
     - user: root
-    - name: '/usr/share/elasticsearch/bin/shield/esusers admin -p 123456 -r admin'
+    - name: '/usr/share/elasticsearch/bin/shield/esusers useradd admin -p 123456 -r admin'
     - require:
       - cmd: install_shield
     - require_in:
