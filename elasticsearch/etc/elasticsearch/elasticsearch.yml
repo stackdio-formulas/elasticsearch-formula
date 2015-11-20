@@ -9,9 +9,6 @@
 {%- endif -%}
 
 {%- set num_replicas = salt['pillar.get']('elasticsearch:replicas', 2) -%}
-{%- if num_replicas < 2 -%}
-    {%- set num_replicas = 2 -%}
-{%- endif -%}
 
 cluster.name: {{ grains.namespace }}
 node.master: {{ master | lower }}
