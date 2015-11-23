@@ -1,6 +1,9 @@
 {%- set master = 'elasticsearch.master' in grains.roles -%}
 {%- set data = 'elasticsearch.data' in grains.roles -%}
 {%- set client = 'elasticsearch.client' in grains.roles -%}
+
+{%- set discover_master = salt['pillar.get']('elasticsearch:discover_master', False) -%}
+
 {%- set shield = salt['pillar.get']('elasticsearch:encrypted', False) -%}
 {%- set master_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.master', 'grains.items', 'compound').values() -%}
 {%- set data_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data', 'grains.items', 'compound').values() -%}
@@ -18,7 +21,7 @@
 # Naming
 cluster.name: {{ grains.namespace }}
 node.name: {{ grains.id }}
-node.master: {{ master and not client | lower }}
+node.master: {{ (master or (data and discover_master)) and not client | lower }}
 node.data: {{ data and not client | lower }}
 node.client: {{ client | lower }}
 

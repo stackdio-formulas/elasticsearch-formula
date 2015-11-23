@@ -18,6 +18,7 @@ pillar_defaults:
         version: 1.4
         heap_size: 1g
         replicas: 2
+        discover_master: false
         marvel:
             install: true
             version: latest
