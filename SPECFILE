@@ -2,12 +2,15 @@ title: Elasticsearch formula
 description: Salt formula for installing some base components
 root_path: elasticsearch
 components:
-  - title: Elasticsearch Master
-    description: Elasticsearch Master
+  - title: Elasticsearch Master Node
+    description: Elasticsearch Master Node
     sls_path: elasticsearch.master
-  - title: Elasticsearch Datanode
-    description: Elasticsearch Datanode
+  - title: Elasticsearch Data Node
+    description: Elasticsearch Data Node
     sls_path: elasticsearch.data
+  - title: Elasticsearch Client Node
+    description: This is neither a master nor data node - it is meant to be used as the connection point into the cluster.
+    sls_path: elasticsearch.client
 
 
 pillar_defaults:

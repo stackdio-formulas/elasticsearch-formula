@@ -1,6 +1,5 @@
 include:
   - elasticsearch.install
-  - elasticsearch.start
 {% if salt['pillar.get']('elasticsearch:marvel:install', True) %}
   - elasticsearch.marvel
 {% endif %}
@@ -8,15 +7,13 @@ include:
   - elasticsearch.shield
 {% endif %}
 
-
-/etc/elasticsearch/elasticsearch.yml:
-  file:
-    - managed
-    - mkdirs: false
-    - source: salt://elasticsearch/etc/elasticsearch/elasticsearch.yml
-    - template: jinja
-    - user: root
-    - group: root
-    - mode: 644
+start_elasticsearch:
+  service:
+    - running
+    - name: elasticsearch
+    - enable: True
     - require:
       - pkg: elasticsearch
+    - watch:
+      - file: /etc/elasticsearch/elasticsearch.yml
+      - file: elasticsearch_default_config
