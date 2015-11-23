@@ -1,15 +1,17 @@
-{%- set master = 'elasticsearch.master' in grains.roles -%}
-{%- set data = 'elasticsearch.data' in grains.roles -%}
 {%- set client = 'elasticsearch.client' in grains.roles -%}
+
+{# We can only be a master or data node if we're not a client node #}
+{%- set master = 'elasticsearch.master' in grains.roles and not client -%}
+{%- set data = 'elasticsearch.data' in grains.roles and not client -%}
 
 {%- set discover_master = salt['pillar.get']('elasticsearch:discover_master', False) -%}
 
 {%- set shield = salt['pillar.get']('elasticsearch:encrypted', False) -%}
-{%- set master_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.master', 'grains.items', 'compound').values() -%}
-{%- set data_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data', 'grains.items', 'compound').values() -%}
+{%- set master_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.master and not G@roles:elasticsearch.client', 'grains.items', 'compound').values() -%}
+{%- set data_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data and not G@roles:elasticsearch.client', 'grains.items', 'compound').values() -%}
 
 {# This is the number of nodes that hold data but don't have the master role #}
-{%- set data_non_master = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data and not G@roles:elasticsearch.master', 'grains.items', 'compound') | length %}
+{%- set data_non_master = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data and not G@roles:elasticsearch.master and not G@roles:elasticsearch.client', 'grains.items', 'compound') | length %}
 
 {%- set num_master_nodes = master_nodes | length -%}
 {%- set num_data_nodes = data_nodes | length -%}
@@ -29,8 +31,8 @@
 # Naming
 cluster.name: {{ grains.namespace }}
 node.name: {{ grains.id }}
-node.master: {{ (master or (data and discover_master)) and not client | lower }}
-node.data: {{ data and not client | lower }}
+node.master: {{ master or (data and discover_master) | lower }}
+node.data: {{ data | lower }}
 node.client: {{ client | lower }}
 
 # Discovery - just use the master nodes & disable multicast
