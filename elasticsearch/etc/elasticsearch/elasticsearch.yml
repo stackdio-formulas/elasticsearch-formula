@@ -8,6 +8,9 @@
 {%- set master_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.master', 'grains.items', 'compound').values() -%}
 {%- set data_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data', 'grains.items', 'compound').values() -%}
 
+{# This is the number of nodes that hold data but don't have the master role #}
+{%- set data_non_master = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data and not G@roles:elasticsearch.master', 'grains.items', 'compound') | length %}
+
 {%- set num_master_nodes = master_nodes | length -%}
 {%- set num_data_nodes = data_nodes | length -%}
 
@@ -17,6 +20,11 @@
 {%- endif -%}
 
 {%- set num_replicas = salt['pillar.get']('elasticsearch:replicas', 2) -%}
+
+{# If we're converting all the datanodes to also be masters, we need to add them into the total number of master nodes #}
+{%- if discover_master -%}
+  {%- set master_nodes = master_nodes + data_non_master -%}
+{%- endif -%}
 
 # Naming
 cluster.name: {{ grains.namespace }}
