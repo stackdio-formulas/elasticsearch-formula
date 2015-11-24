@@ -1,30 +1,63 @@
-{%- set master = 'elasticsearch.master' in grains.roles -%}
-{%- set data = 'elasticsearch.data' in grains.roles -%}
-{%- set shield = salt['pillar.get']('elasticsearch:encrypted', False) -%}
-{%- set master_fqdn = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.master', 'grains.items', 'compound').values()[0]['fqdn'] -%}
+{%- set client = 'elasticsearch.client' in grains.roles -%}
 
-{%- set num_shards = ((salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data', 'grains.items', 'compound') | length) / 2) | int -%}
+{# We can only be a master or data node if we're not a client node #}
+{%- set master = 'elasticsearch.master' in grains.roles and not client -%}
+{%- set data = 'elasticsearch.data' in grains.roles and not client -%}
+
+{%- set discover_master = salt['pillar.get']('elasticsearch:discover_master', False) -%}
+
+{%- set shield = salt['pillar.get']('elasticsearch:encrypted', False) -%}
+
+{# the lists of master & data nodes should NOT include client nodes #}
+{%- set master_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.master and not G@roles:elasticsearch.client', 'grains.items', 'compound').values() -%}
+{%- set data_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data and not G@roles:elasticsearch.client', 'grains.items', 'compound').values() -%}
+
+{# This is the number of nodes that hold data but don't have the master or client role #}
+{%- set data_non_master = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data and not G@roles:elasticsearch.master and not G@roles:elasticsearch.client', 'grains.items', 'compound').values() -%}
+
+{# If we're converting all the datanodes to also be masters, we need to add the ones that aren't already master nodes into the list of master nodes #}
+{%- if discover_master -%}
+  {%- set master_nodes = master_nodes + data_non_master -%}
+{%- endif -%}
+
+{%- set num_master_nodes = master_nodes | length -%}
+{%- set num_data_nodes = data_nodes | length -%}
+
+{%- set num_shards = (num_data_nodes / 2) | int -%}
 {%- if num_shards < 5 -%}
     {%- set num_shards = 5 -%}
 {%- endif -%}
 
 {%- set num_replicas = salt['pillar.get']('elasticsearch:replicas', 2) -%}
 
+# Naming
 cluster.name: {{ grains.namespace }}
-node.master: {{ master | lower }}
+node.name: {{ grains.id }}
+node.master: {{ master or (data and discover_master) | lower }}
 node.data: {{ data | lower }}
-{% if data %}
-discovery.zen.ping.unicast.hosts: ["{{ master_fqdn }}"]
-{% endif %}
+node.client: {{ client | lower }}
+
+# Discovery - just use the master nodes & disable multicast
+discovery.zen.ping.multicast.enabled: false
+discovery.zen.minimum_master_nodes: {{ ((num_master_nodes / 2) + 1) | int }}
+discovery.zen.ping.unicast.hosts:
+  {% for node in master_nodes %}
+  - {{ node.fqdn }}
+  {% endfor %}
+
+# Recovery settings - this should help A LOT when restarting clusters.
+gateway.recover_after_time: 5m
+gateway.recover_after_nodes: {{ (num_data_nodes * 0.85) | int }}
+
+# Storage paths
 path.data: /mnt/elasticsearch/data
 path.work: /mnt/elasticsearch/work
 path.logs: /mnt/elasticsearch/logs
 
 {% if shield %}
+# Shield settings
 shield.http.ssl: true
 shield.transport.ssl: true
-discovery.zen.ping.multicast.enabled: false
-
 shield.ssl.keystore.path: /etc/elasticsearch/elasticsearch.keystore
 shield.ssl.keystore.password: elasticsearch
 shield.ssl.keystore.key_password: elasticsearch
