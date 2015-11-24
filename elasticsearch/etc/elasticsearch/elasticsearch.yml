@@ -33,7 +33,7 @@
 # Naming
 cluster.name: {{ grains.namespace }}
 node.name: {{ grains.id }}
-node.master: {{ master or (data and discover_master) | lower }}
+node.master: {{ (master or (data and discover_master)) | lower }}
 node.data: {{ data | lower }}
 node.client: {{ client | lower }}
 
