@@ -31,10 +31,11 @@ RETVAL=0
 
 case "$1" in
     start)
-        if [ ! -f "$PID_FILE" ]; then
+        running=`pidofproc -p $PID_FILE`
+        if [ ! "$running" ]; then
           echo -n "Starting Kibana"
-          daemon --user $USER --pidfile $PID_FILE "$EXEC_SCRIPT --log-file $LOG_FILE &> $OUT_FILE &"
-          RETVAL=$?
+          su -s /bin/bash $USER -c "nohup $EXEC_SCRIPT 0<&- &> $LOG_FILE & echo \$! > '$PID_FILE'"
+          RETVAL=0
           [ $RETVAL -eq 0 ] && touch $LOCKFILE
         else
           echo -n "Kibana is already running"
@@ -64,7 +65,7 @@ case "$1" in
         $0 restart
         ;;
     status)
-        status kibana
+        status -p $PID_FILE $PROG
         RETVAL=$?
         ;;
 *)
