@@ -21,8 +21,8 @@ kibana:
     - extracted
     - name: /usr/share
     - if_missing: /usr/share/kibana
-    - user: kibana
-    - group: kibana
+    - user: root
+    - group: root
     - source: https://download.elastic.co/kibana/kibana/kibana-{{ kibana_version }}-linux-x64.tar.gz
     - source_hash: https://download.elastic.co/kibana/kibana/kibana-{{ kibana_version }}-linux-x64.tar.gz.sha1.txt
     - archive_format: tar
