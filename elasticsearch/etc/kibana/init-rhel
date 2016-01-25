@@ -32,7 +32,7 @@ case "$1" in
     start)
         if [ ! -f "$PID_FILE" ]; then
           echo -n "Starting Kibana"
-          daemon --user $USER --pidfile $PID_FILE "$EXEC_SCRIPT --log-file $LOG_FILE &"
+          daemon --user $USER --pidfile $PID_FILE "$EXEC_SCRIPT --log-file $LOG_FILE &> $LOG_FILE &"
           RETVAL=$?
           [ $RETVAL -eq 0 ] && touch $LOCKFILE
         else
