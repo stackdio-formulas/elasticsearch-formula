@@ -19,7 +19,7 @@ PID_FILE="$PID_DIR"/kibana.pid
 LOG_FILE="$LOG_DIR"/kibana.log
 USER="kibana"
 PROG="kibana"
-LOCKFILE="/var/log/subsys/$PROG"
+LOCKFILE="/var/lock/subsys/$PROG"
 
 test -d $LOG_DIR || mkdir $LOG_DIR
 
