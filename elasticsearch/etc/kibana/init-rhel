@@ -17,6 +17,7 @@ LOG_DIR=/var/log/kibana
 PID_DIR=/var/run/kibana
 PID_FILE="$PID_DIR"/kibana.pid
 LOG_FILE="$LOG_DIR"/kibana.log
+OUT_FILE="$LOG_DIR"/kibana.out
 USER="kibana"
 PROG="kibana"
 LOCKFILE="/var/lock/subsys/$PROG"
@@ -32,7 +33,7 @@ case "$1" in
     start)
         if [ ! -f "$PID_FILE" ]; then
           echo -n "Starting Kibana"
-          daemon --user $USER --pidfile $PID_FILE "$EXEC_SCRIPT --log-file $LOG_FILE &> $LOG_FILE &"
+          daemon --user $USER --pidfile $PID_FILE "$EXEC_SCRIPT --log-file $LOG_FILE &> $OUT_FILE &"
           RETVAL=$?
           [ $RETVAL -eq 0 ] && touch $LOCKFILE
         else
