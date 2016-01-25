@@ -33,10 +33,8 @@ case "$1" in
         if [ ! -f "$PID_FILE" ]; then
           echo -n "Starting Kibana"
           daemon --user $USER --pidfile $PID_FILE $EXEC_SCRIPT --log-file $LOG_FILE
-          retval=$?
-          echo
-          [ $retval -eq 0 ] && touch $LOCKFILE
-          return $retval
+          RETVAL=$?
+          [ $RETVAL -eq 0 ] && touch $LOCKFILE
         else
           echo -n "Kibana is already running"
           RETVAL=1
@@ -48,10 +46,8 @@ case "$1" in
         if [ -f "$PID_FILE" ]; then
           echo -n "Stopping Kibana"
           killproc -p $PID_FILE $PROG
-          retval=$?
-          echo
-          [ $retval -eq 0 ] && rm -f $LOCKFILE
-          return $retval
+          RETVAL=$?
+          [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
         else
           echo -n "Kibana is not running"
           RETVAL=1
