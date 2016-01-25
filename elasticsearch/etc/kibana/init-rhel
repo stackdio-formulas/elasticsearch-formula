@@ -36,7 +36,7 @@ case "$1" in
           retval=$?
           echo
           [ $retval -eq 0 ] && touch $LOCKFILE
-          [ $retval -eq 0 ] && success || failure
+          return $retval
         else
           echo -n "Kibana is already running"
           RETVAL=1
@@ -51,7 +51,7 @@ case "$1" in
           retval=$?
           echo
           [ $retval -eq 0 ] && rm -f $LOCKFILE
-          [ $retval -eq 0 ] && success || failure
+          return $retval
         else
           echo -n "Kibana is not running"
           RETVAL=1
