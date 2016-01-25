@@ -12,6 +12,15 @@
     - source: https://download.elastic.co/kibana/kibana/kibana-{{ kibana_version }}-linux-x64.tar.gz
     - source_hash: https://download.elastic.co/kibana/kibana/kibana-{{ kibana_version }}-linux-x64.tar.gz.sha1.txt
     - archive_format: tar
+  file:
+    - copy
+    - source: /usr/share/kibana-{{ kibana_version }}-linux-x64
+    - user: root
+    - group: root
+    - mode: 755
+    - require:
+      - archive: /usr/share/kibana
+
 
 /usr/share/kibana/config/kibana.yml:
   file:
@@ -42,7 +51,6 @@ kibana:
       - kibana
     - require:
       - group: kibana
-      - file: /usr/share/kibana
   group:
     - present
 
