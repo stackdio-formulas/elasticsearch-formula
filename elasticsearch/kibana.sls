@@ -31,7 +31,7 @@
     - group: root
     - mode: 644
     - require:
-      - archive: /usr/share/kibana
+      - file: /usr/share/kibana
 
 /etc/init.d/kibana:
   file:
@@ -45,7 +45,7 @@
 kibana:
   user:
     - present
-    - home: /usr/share/kibana
+    - home: /var/lib/kibana
     - system: true
     - groups:
       - kibana
@@ -81,7 +81,7 @@ kibana-svc:
     - running
     - name: kibana
     - watch:
-      - archive: /usr/share/kibana
+      - file: /usr/share/kibana
       - file: /usr/share/kibana/config/kibana.yml
       - file: /etc/init.d/kibana
       - file: /var/log/kibana
