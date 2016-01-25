@@ -19,6 +19,7 @@ PID_FILE="$PID_DIR"/kibana.pid
 LOG_FILE="$LOG_DIR"/kibana.log
 USER="kibana"
 PROG="kibana"
+LOCKFILE="/var/log/subsys/$PROG"
 
 test -d $LOG_DIR || mkdir $LOG_DIR
 
@@ -32,7 +33,10 @@ case "$1" in
         if [ ! -f "$PID_FILE" ]; then
           echo -n "Starting Kibana"
           daemon --user $USER --pidfile $PID_FILE $EXEC_SCRIPT --log-file $LOG_FILE
-          success
+          retval=$?
+          echo
+          [ $retval -eq 0 ] && touch $LOCKFILE
+          [ $retval -eq 0 ] && success || failure
         else
           echo -n "Kibana is already running"
           RETVAL=1
@@ -44,7 +48,10 @@ case "$1" in
         if [ -f "$PID_FILE" ]; then
           echo -n "Stopping Kibana"
           killproc -p $PID_FILE $PROG
-          success
+          retval=$?
+          echo
+          [ $retval -eq 0 ] && rm -f $LOCKFILE
+          [ $retval -eq 0 ] && success || failure
         else
           echo -n "Kibana is not running"
           RETVAL=1
