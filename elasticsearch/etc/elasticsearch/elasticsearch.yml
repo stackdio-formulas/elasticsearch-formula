@@ -37,6 +37,10 @@ node.master: {{ (master or (data and discover_master)) | lower }}
 node.data: {{ data | lower }}
 node.client: {{ client | lower }}
 
+# Network settings
+network.host: 0.0.0.0
+http.port: 9200
+
 # Discovery - just use the master nodes & disable multicast
 discovery.zen.ping.multicast.enabled: false
 discovery.zen.minimum_master_nodes: {{ ((num_master_nodes / 2) + 1) | int }}
