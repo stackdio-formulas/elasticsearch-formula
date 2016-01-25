@@ -15,9 +15,6 @@
   file:
     - rename
     - source: /usr/share/kibana-{{ kibana_version }}-linux-x64
-    - user: root
-    - group: root
-    - mode: 755
     - require:
       - archive: /usr/share/kibana
 
