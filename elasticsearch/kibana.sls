@@ -1,23 +1,38 @@
 
 {% set kibana_version = pillar.elasticsearch.kibana.version %}
 
+kibana:
+  user:
+    - present
+    - home: /var/lib/kibana
+    - shell: /sbin/nologin
+    - system: true
+    - groups:
+      - kibana
+    - require:
+      - group: kibana
+  group:
+    - present
+    - system: true
+
 # Install
 /usr/share/kibana:
   archive:
     - extracted
     - name: /usr/share
     - if_missing: /usr/share/kibana
-    - user: root
-    - group: root
+    - user: kibana
+    - group: kibana
     - source: https://download.elastic.co/kibana/kibana/kibana-{{ kibana_version }}-linux-x64.tar.gz
     - source_hash: https://download.elastic.co/kibana/kibana/kibana-{{ kibana_version }}-linux-x64.tar.gz.sha1.txt
     - archive_format: tar
+    - require:
+      - user: kibana
   file:
     - rename
     - source: /usr/share/kibana-{{ kibana_version }}-linux-x64
     - require:
       - archive: /usr/share/kibana
-
 
 /usr/share/kibana/config/kibana.yml:
   file:
@@ -38,18 +53,6 @@
     - user: root
     - group: root
     - mode: 755
-
-kibana:
-  user:
-    - present
-    - home: /var/lib/kibana
-    - system: true
-    - groups:
-      - kibana
-    - require:
-      - group: kibana
-  group:
-    - present
 
 /var/log/kibana:
   file:
