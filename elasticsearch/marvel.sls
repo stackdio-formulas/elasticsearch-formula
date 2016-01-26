@@ -1,6 +1,6 @@
 {% set marvel_version = salt['pillar.get']('elasticsearch:marvel:version', 'latest') %}
 
-{%- set es_version = salt['pillar.get']('elasticsearch:version', 'latest') -%} %}
+{% set es_version = salt['pillar.get']('elasticsearch:version', 'latest') %}
 
 # This 2.x is how ES is describing their versions -
 # they have a single yum repository with all the 2.x versions in it
