@@ -85,6 +85,12 @@ kibana:
       - file: /var/run/kibana
       - file: /usr/share/kibana
 
+/var/run/kibana/.babelcache.json:
+  file:
+    - absent
+    - require:
+      - file: /usr/share/kibana/optimize/.babelcache.json
+
 {% if salt['pillar.get']('elasticsearch:marvel:install', True) %}
 
 {% set marvel_version = salt['pillar.get']('elasticsearch:marvel:version', 'latest') %}
@@ -111,3 +117,4 @@ kibana-svc:
       - file: /var/log/kibana
       - file: /var/run/kibana
       - file: /usr/share/kibana/optimize/.babelcache.json
+      - file: /var/run/kibana/.babelcache.json

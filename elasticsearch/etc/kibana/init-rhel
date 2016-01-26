@@ -31,14 +31,17 @@ RETVAL=0
 
 case "$1" in
     start)
-        running=`pidofproc -p $PID_FILE`
+        running=`pidofproc -p $PID_FILE &> /dev/null`
         if [ ! "$running" ]; then
-          echo -n "Starting Kibana"
+          echo -n "Starting $PROG"
           su -s /bin/bash $USER -c "nohup $EXEC_SCRIPT 0<&- &> $LOG_FILE & echo \$! > '$PID_FILE'"
-          RETVAL=0
+          sleep 3
+          pidofproc -p $PID_FILE &> /dev/null
+          RETVAL=$?
           [ $RETVAL -eq 0 ] && touch $LOCKFILE
+          [ $RETVAL -eq 0 ] && success || failure
         else
-          echo -n "Kibana is already running"
+          echo -n "$PROG is already running"
           RETVAL=1
           failure
         fi
@@ -46,12 +49,13 @@ case "$1" in
         ;;
     stop)
         if [ -f "$PID_FILE" ]; then
-          echo -n "Stopping Kibana"
+          echo -n "Stopping $PROG"
           killproc -p $PID_FILE $PROG
           RETVAL=$?
           [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+          [ $RETVAL -eq 0 ] && success || failure
         else
-          echo -n "Kibana is not running"
+          echo -n "$PROG is not running"
           RETVAL=1
           failure
         fi
