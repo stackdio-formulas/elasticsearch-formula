@@ -76,10 +76,11 @@ kibana:
     - require:
       - user: kibana
 
-/usr/share/kibana/optimized/.babelcache.json:
+/usr/share/kibana/optimize/.babelcache.json:
   file:
     - symlink
     - target: /var/run/kibana/.babelcache.json
+    - force: true
     - require:
       - file: /var/run/kibana
       - file: /usr/share/kibana
@@ -109,4 +110,4 @@ kibana-svc:
       - file: /etc/init.d/kibana
       - file: /var/log/kibana
       - file: /var/run/kibana
-      - file: /usr/share/kibana/optimized/.babelcache.json
+      - file: /usr/share/kibana/optimize/.babelcache.json
