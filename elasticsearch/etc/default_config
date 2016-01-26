@@ -31,11 +31,11 @@ DATA_DIR=/var/lib/elasticsearch
 # Elasticsearch work directory
 WORK_DIR=/tmp/elasticsearch
 
+# Elasticsearch PID directory
+PID_DIR=/var/run/elasticsearch
+
 # Elasticsearch conf directory
 CONF_DIR=/etc/elasticsearch
-
-# Elasticsearch configuration file (elasticsearch.yml)
-CONF_FILE=/etc/elasticsearch/elasticsearch.yml
 
 # User to run as, change this to a specific elasticsearch user if possible
 # Also make sure, this user can write into the log directories in case you change them
@@ -44,4 +44,5 @@ ES_USER=elasticsearch
 
 # Configure restart on package upgrade (true, every other setting will lead to not restarting)
 #RESTART_ON_UPGRADE=true
-
+# For 2.x
+#ES_RESTART_ON_UPGRADE=true
