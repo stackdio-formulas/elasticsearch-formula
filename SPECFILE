@@ -11,6 +11,9 @@ components:
   - title: Elasticsearch Client Node
     description: This is neither a master nor data node - it is meant to be used as the connection point into the cluster.
     sls_path: elasticsearch.client
+  - title: Elasticsearch Kibana Server
+    description: Kibana server for visualization
+    sls_path: elasticsearch.kibana
 
 
 pillar_defaults:
@@ -22,6 +25,8 @@ pillar_defaults:
         marvel:
             install: true
             version: latest
+        kibana:
+            version: 4.3.1
         encrypted: false
         encryption:
             certificate: CHANGE_ME
