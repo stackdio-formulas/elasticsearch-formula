@@ -96,3 +96,12 @@ elasticsearch_default_config:
     - mode: 644
     - require:
       - pkg: elasticsearch
+
+/etc/security/limits.conf:
+  file.append:
+    - text:
+      - elasticsearch - memlock unlimited
+      - root - memlock unlimited
+
+/bin/sed 's/#LimitMEMLOCK=infinity/LimitMEMLOCK=infinity/' /usr/lib/systemd/system/elasticsearch.service
+  cmd.run
