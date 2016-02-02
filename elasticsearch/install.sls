@@ -103,5 +103,5 @@ elasticsearch_default_config:
       - elasticsearch - memlock unlimited
       - root - memlock unlimited
 
-/bin/sed 's/#LimitMEMLOCK=infinity/LimitMEMLOCK=infinity/' /usr/lib/systemd/system/elasticsearch.service
+/bin/sed 's/#LimitMEMLOCK=infinity/LimitMEMLOCK=infinity/' /usr/lib/systemd/system/elasticsearch.service:
   cmd.run
