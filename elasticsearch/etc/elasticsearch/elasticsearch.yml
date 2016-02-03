@@ -80,7 +80,7 @@ marvel.agent.exporters:
 
 {% endif %}
 
-{% if elasticsearch.kibana.is_external %}
+{% if elasticsearch.marvel.is_external %}
 marvel.agent.enabled: false
 {% endif %}
 
