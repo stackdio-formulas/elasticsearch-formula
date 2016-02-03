@@ -76,20 +76,6 @@ kibana:
     - require:
       - user: kibana
 
-/usr/share/kibana/optimize/.babelcache.json:
-  file:
-    - symlink
-    - target: /var/run/kibana/.babelcache.json
-    - force: true
-    - require:
-      - file: /var/run/kibana
-      - file: /usr/share/kibana
-
-/var/run/kibana/.babelcache.json:
-  file:
-    - absent
-    - require:
-      - file: /usr/share/kibana/optimize/.babelcache.json
 
 {% if salt['pillar.get']('elasticsearch:marvel:install', True) %}
 
@@ -105,6 +91,23 @@ install_marvel:
     - service: kibana-svc
   - unless: 'test -d /usr/share/kibana/installedPlugins/marvel'
 {% endif %}
+
+/usr/share/kibana/optimize/.babelcache.json:
+  file:
+    - symlink
+    - target: /var/run/kibana/.babelcache.json
+    - force: true
+    - require:
+      - file: /var/run/kibana
+      - file: /usr/share/kibana
+
+/var/run/kibana/.babelcache.json:
+  file:
+    - manage
+    - user: kibana
+    - group: kibana
+    - require:
+      - file: /usr/share/kibana/optimize/.babelcache.json
 
 kibana-svc:
   service:
