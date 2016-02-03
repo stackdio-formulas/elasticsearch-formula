@@ -65,7 +65,7 @@ bootstrap.mlockall: true
 
 {% if pillar.elasticsearch.marvel.install %}
 
-    {% if pillar.elasticsearch.external_cluster %}
+    {% if pillar.elasticsearch.marvel.external_cluster %}
 
         {% if pillar.elasticsearch.version < 2 %}
 marvel.agent.exporter.es.hosts: ["{{ pillar.elasticsearch.marvel.external_cluster }}:9200"]
