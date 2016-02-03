@@ -63,24 +63,24 @@ path.logs: /mnt/elasticsearch/logs
 bootstrap.mlockall: true
 
 
-{% if elasticsearch.marvel.install %}
+{% if 'elasticsearch.marvel.install' %}
 
-    {% if elasticsearch.external_cluster %}
+    {% if 'elasticsearch.external_cluster' %}
 
-        {% if elasticsearch.version < 2 %}
-marvel.agent.exporter.es.hosts: ["{{ elasticsearch.marvel.external_cluster }}:9200"]
+        {% if 'elasticsearch.version' < 2 %}
+marvel.agent.exporter.es.hosts: ["{{ 'elasticsearch.marvel.external_cluster' }}:9200"]
          {% else %}
 marvel.agent.exporters:
   id1:
     type: http
-    host: ["http:/{{ elasticsearch.marvel.external_cluster }}:9200"]
+    host: ["http:/{{ 'elasticsearch.marvel.external_cluster' }}:9200"]
          {% endif %}
 
     {% endif %}
 
 {% endif %}
 
-{% if elasticsearch.marvel.is_external %}
+{% if 'elasticsearch.marvel.is_external' %}
 marvel.agent.enabled: false
 {% endif %}
 
