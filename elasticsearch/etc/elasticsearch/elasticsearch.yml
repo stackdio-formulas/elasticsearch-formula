@@ -80,10 +80,9 @@ marvel.agent.exporters:
 
 {% endif %}
 
-#need the right test here -JDS
-#{% if remote_monitor_cluster %}
-#marvel.agent.enabled: false
-#m{% endif %}
+{% if elasticsearch.kibana.is_external %}
+marvel.agent.enabled: false
+{% endif %}
 
 
 {% if shield %}
