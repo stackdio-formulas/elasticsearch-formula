@@ -25,8 +25,8 @@ pillar_defaults:
         marvel:
             install: true
             version: latest
-	    external_cluster: null
-	    is_external: null
+            external_cluster: null
+            is_external: null
         kibana:
             version: 4.3.1
         encrypted: false
