@@ -103,7 +103,7 @@ install_marvel:
 
 /var/run/kibana/.babelcache.json:
   file:
-    - manage
+    - managed
     - user: kibana
     - group: kibana
     - require:
