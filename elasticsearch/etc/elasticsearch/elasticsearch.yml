@@ -70,7 +70,7 @@ marvel.agent.exporter.es.hosts: ["{{ pillar.elasticsearch.marvel.external_cluste
 marvel.agent.exporters:
   id1:
     type: http
-    host: ["http:/{{ pillar.elasticsearch.marvel.external_cluster }}:9200"]
+    host: ["http://{{ pillar.elasticsearch.marvel.external_cluster }}:9200"]
          {%- endif %}
     {%- endif %}
 {%- endif %}
