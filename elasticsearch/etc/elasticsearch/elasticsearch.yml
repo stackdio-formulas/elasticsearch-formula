@@ -38,7 +38,6 @@ node.data: {{ data | lower }}
 node.client: {{ client | lower }}
 
 # Network settings
-# I'm fairly sure this needs to change for 2.x -JDS
 network.host: 0.0.0.0
 http.port: 9200
 
@@ -64,7 +63,7 @@ bootstrap.mlockall: true
 
 {%- if pillar.elasticsearch.marvel.install %}
     {%- if pillar.elasticsearch.marvel.external_cluster %}
-        {%- if pillar.elasticsearch.version == "1.7" %}
+        {%- if pillar.elasticsearch.version.split('.'[1] | int < 2 %}
 marvel.agent.exporter.es.hosts: ["{{ pillar.elasticsearch.marvel.external_cluster }}:9200"]
          {%- else %}
 marvel.agent.exporters:
