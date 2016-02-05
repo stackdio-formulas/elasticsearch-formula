@@ -18,6 +18,7 @@ install_license:
     - service: start_elasticsearch
   - unless: '/usr/share/elasticsearch/bin/plugin list | grep license'
 
+{% if not pillar.elasticsearch.marvel.is_external %}
 install_marvel:
   cmd:
   - run
@@ -29,6 +30,7 @@ install_marvel:
   - require_in:
     - service: start_elasticsearch
   - unless: '/usr/share/elasticsearch/bin/plugin list | grep marvel-agent'
+{% endif %}
 
 {% else %}
 
