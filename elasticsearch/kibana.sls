@@ -89,6 +89,7 @@ install_marvel:
     - file: /usr/share/kibana
   - require_in:
     - service: kibana-svc
+    - file: /usr/share/kibana/optimize/.babelcache.json
   - unless: 'test -d /usr/share/kibana/installedPlugins/marvel'
 {% endif %}
 
