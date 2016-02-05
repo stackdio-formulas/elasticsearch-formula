@@ -38,6 +38,7 @@ node.data: {{ data | lower }}
 node.client: {{ client | lower }}
 
 # Network settings
+# I'm fairly sure this needs to change for 2.x -JDS
 network.host: 0.0.0.0
 http.port: 9200
 
@@ -61,7 +62,22 @@ path.logs: /mnt/elasticsearch/logs
 # Disable the JVM from being swapped out
 bootstrap.mlockall: true
 
+{%- if pillar.elasticsearch.marvel.install %}
+    {%- if pillar.elasticsearch.marvel.external_cluster %}
+        {%- if pillar.elasticsearch.version == "1.7" %}
+marvel.agent.exporter.es.hosts: ["{{ pillar.elasticsearch.marvel.external_cluster }}:9200"]
+         {%- else %}
+marvel.agent.exporters:
+  id1:
+    type: http
+    host: ["http://{{ pillar.elasticsearch.marvel.external_cluster }}:9200"]
+         {%- endif %}
+    {%- endif %}
+{%- endif %}
 
+{%- if pillar.elasticsearch.marvel.is_external %}
+marvel.agent.enabled: false
+{%- endif %}
 
 {% if shield %}
 # Shield settings

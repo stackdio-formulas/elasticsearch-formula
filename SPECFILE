@@ -18,15 +18,17 @@ components:
 
 pillar_defaults:
     elasticsearch:
-        version: 1.4
+        version: 2.x
         heap_size: 1g
         replicas: 2
         discover_master: false
         marvel:
             install: true
             version: latest
+            external_cluster: null
+            is_external: null
         kibana:
-            version: 4.3.1
+            version: 4.4.0
         encrypted: false
         encryption:
             certificate: CHANGE_ME
