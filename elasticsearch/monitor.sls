@@ -1,8 +1,8 @@
 gcc-c++:
   pkg:
     - installed
-    -require:
-      -pkg: sensu
+    - require:
+      - pkg: sensu
 
 es-sensu-plugin:
   cmd.run:
