@@ -14,7 +14,9 @@ components:
   - title: Elasticsearch Kibana Server
     description: Kibana server for visualization
     sls_path: elasticsearch.kibana
-
+  - title: Elasticsearch Monitoring Client
+    description: Monitoring with Sensu for ES client addons 
+    sls_path: elasticsearch.monitor
 
 pillar_defaults:
     elasticsearch:
