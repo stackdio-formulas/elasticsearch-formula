@@ -11,6 +11,9 @@ components:
   - title: Elasticsearch Client Node
     description: This is neither a master nor data node - it is meant to be used as the connection point into the cluster.
     sls_path: elasticsearch.client
+  - title: Elasticsearch Config Only Node
+    description: This should be placed on edge nodes that need to communicate with elasticsearch but not join a cluster
+    sls_path: elasticsearch.config_only
   - title: Elasticsearch Kibana Server
     description: Kibana server for visualization
     sls_path: elasticsearch.kibana
