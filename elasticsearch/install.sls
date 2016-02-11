@@ -1,3 +1,5 @@
+{%- set config_only = 'elasticsearch.config_only' in grains.roles -%}
+
 {% if grains['os_family'] == 'RedHat' %}
 # Centos
 
@@ -52,23 +54,6 @@ elasticsearch:
     - installed
 
 
-{% set dirs = ['', '/data', '/work', '/logs'] %}
-
-{% for dir in dirs %}
-/mnt/elasticsearch{{ dir }}:
-  file:
-    - directory
-    - user: elasticsearch
-    - group: elasticsearch
-    - mode: 755
-    - require:
-      - pkg: elasticsearch
-    - require_in:
-      - service: start_elasticsearch
-
-{% endfor %}
-
-
 /etc/elasticsearch/elasticsearch.yml:
   file:
     - managed
@@ -97,11 +82,34 @@ elasticsearch_default_config:
     - require:
       - pkg: elasticsearch
 
+
+{% if not config_only %}
+
+{% set dirs = ['', '/data', '/work', '/logs'] %}
+
+{% for dir in dirs %}
+/mnt/elasticsearch{{ dir }}:
+  file:
+    - directory
+    - user: elasticsearch
+    - group: elasticsearch
+    - mode: 755
+    - require:
+      - pkg: elasticsearch
+    - require_in:
+      - service: start_elasticsearch
+
+{% endfor %}
+
 /etc/security/limits.conf:
-  file.append:
+  file:
+    - append
     - text:
       - elasticsearch - memlock unlimited
       - root - memlock unlimited
 
 /bin/sed 's/#LimitMEMLOCK=infinity/LimitMEMLOCK=infinity/' /usr/lib/systemd/system/elasticsearch.service:
-  cmd.run
+  cmd:
+    - run
+
+{% endif %}
