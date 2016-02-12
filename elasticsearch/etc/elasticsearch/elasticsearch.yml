@@ -40,6 +40,7 @@ node.client: {{ client | lower }}
 # Network settings
 network.host: 0.0.0.0
 http.port: 9200
+transport.tcp.port: 9300
 
 # Discovery - just use the master nodes & disable multicast
 discovery.zen.ping.multicast.enabled: false
