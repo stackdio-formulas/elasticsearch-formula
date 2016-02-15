@@ -2,7 +2,12 @@
 ES_HOME=/usr/share/elasticsearch
 
 # Heap Size (defaults to 256m min, 1g max)
+{% if 'elasticsearch.data' in grains.roles or 'elasticsearch.client' in grains.roles %}
 ES_HEAP_SIZE={{ pillar.elasticsearch.heap_size }}
+{% else %}
+# master only needs 1g
+ES_HEAP_SIZE=1g
+{% endif %}
 
 # Heap new generation
 #ES_HEAP_NEWSIZE=
