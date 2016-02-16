@@ -22,7 +22,7 @@ components:
     sls_path: elasticsearch.monitor
   - title: Elasticsearch AWS Plugin
     description: Elasticsearch AWS plugin for backups and zone awareness
-    sls_path: elaticsearch.aws_plugin
+    sls_path: elasticsearch.aws_plugin
 
 pillar_defaults:
     elasticsearch:
