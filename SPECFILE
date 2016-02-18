@@ -41,7 +41,7 @@ pillar_defaults:
         encryption:
             certificate: CHANGE_ME
             private_key: CHANGE_ME
-	aws:
+        aws:
 	    region: null
 	    access_key: null
 	    secret_key: null
