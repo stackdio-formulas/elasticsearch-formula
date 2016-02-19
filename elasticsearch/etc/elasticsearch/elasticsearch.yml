@@ -91,3 +91,11 @@ shield.ssl.keystore.key_password: elasticsearch
 index:
   number_of_shards: {{ num_shards }}
   number_of_replicas: {{ num_replicas }}
+
+{%- if pillar.elasticsearch.aws.access_key %}
+cloud:
+  aws:
+    region: {{ pillar.elasticsearch.aws.region }}
+    access_key: {{ pillar.elasticsearch.aws.access_key }}
+    secret_key: {{ pillar.elasticsearch.aws.secret_key }}
+{%- endif %}

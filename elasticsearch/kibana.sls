@@ -93,6 +93,21 @@ install_marvel:
   - unless: 'test -d /usr/share/kibana/installedPlugins/marvel'
 {% endif %}
 
+{% if salt['pillar.get']('elasticsearch:sense:install', True) %}
+install_sense:
+  cmd:
+  - run
+  - user: root
+  - name: '/usr/share/kibana/bin/kibana plugin --install elastic/sense'
+  - require:
+    - file: /usr/share/kibana
+  - require_in:
+    - service: kibana-svc
+    - file: /usr/share/kibana/optimize/.babelcache.json
+  - unless: 'test -d /usr/share/kibana/installedPlugins/sense'
+
+{% endif %}
+
 /usr/share/kibana/optimize/.babelcache.json:
   file:
     - symlink
