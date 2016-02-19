@@ -6,7 +6,7 @@ include:
 {% if salt['pillar.get']('elasticsearch:encrypted', False) %}
   - elasticsearch.shield
 {% endif %}
-{% if salt['pillar.get']('pillar.elasticsearch.aws.install', True) %}
+{% if salt['pillar.get']('elasticsearch:aws:install', False) %}
   - elasticsearch.aws_plugin
 {% endif %}
 
