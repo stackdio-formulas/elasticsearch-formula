@@ -5,7 +5,5 @@ install_aws:
   - name: '/usr/share/elasticsearch/bin/plugin install cloud-aws'
   - require:
     - pkg: elasticsearch
-  - require_in:
-    - service: start_elasticsearch
   - unless: '/usr/share/elasticsearch/bin/plugin list | grep cloud-aws'
 

@@ -20,9 +20,6 @@ components:
   - title: Elasticsearch Monitoring Client
     description: Monitoring with Sensu for ES client addons 
     sls_path: elasticsearch.monitor
-  - title: Elasticsearch AWS Plugin
-    description: Elasticsearch AWS plugin for backups and zone awareness
-    sls_path: elasticsearch.aws_plugin
 
 pillar_defaults:
     elasticsearch:
@@ -43,6 +40,7 @@ pillar_defaults:
             certificate: CHANGE_ME
             private_key: CHANGE_ME
         aws:
+            install: false
             region: null
             access_key: null
             secret_key: null
