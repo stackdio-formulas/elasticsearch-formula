@@ -37,6 +37,7 @@ pillar_defaults:
             is_external: null
         kibana:
             version: 4.4.0
+            sense: true
         encrypted: false
         encryption:
             certificate: CHANGE_ME
