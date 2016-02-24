@@ -2,7 +2,7 @@ install_aws:
   cmd:
   - run
   - user: root
-  - name: '/usr/share/elasticsearch/bin/plugin install cloud-aws'
+  - name: '/usr/share/elasticsearch/bin/plugin install -b cloud-aws'
   - require:
     - pkg: elasticsearch
   - require_in:
