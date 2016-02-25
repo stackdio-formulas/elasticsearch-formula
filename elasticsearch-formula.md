@@ -2,6 +2,8 @@
 Stackd.IO formula for elasticsearch
 
 ---
+Maybe use this kind of format? https://github.com/pravka/salt-consul
+
 
 Supports both 1.x and 2.x versions of ES. 
 
