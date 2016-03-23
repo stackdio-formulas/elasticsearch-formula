@@ -54,7 +54,7 @@ elasticsearch:
     - installed
 
 /etc/elasticsearch:
-  file
+  file:
     - directory
     - user: root
     - group: root
