@@ -53,6 +53,19 @@ elasticsearch:
   pkg:
     - installed
 
+/etc/elasticsearch:
+  file
+    - directory
+    - user: root
+    - group: root
+    - dir_mode: 755
+    - file_mode: 644
+    - recurse:
+      - user
+      - group
+      - mode
+    - require:
+      - pkg: elasticsearch
 
 /etc/elasticsearch/elasticsearch.yml:
   file:
@@ -64,6 +77,7 @@ elasticsearch:
     - group: root
     - mode: 644
     - require:
+      - file: /etc/elasticsearch
       - pkg: elasticsearch
 
 elasticsearch_default_config:
