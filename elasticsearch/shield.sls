@@ -1,5 +1,35 @@
+# This 2.x is how ES is describing their versions -
+# they have a single yum repository with all the 2.x versions in it
+# (We may need to change the formula in the future to support this better)
 
-install_license:
+{% if es_version == '2.x'  %}
+
+install_license_shield:
+  cmd:
+  - run
+  - user: root
+  - name: '/usr/share/elasticsearch/bin/plugin install license'
+  - require:
+    - pkg: elasticsearch
+  - require_in:
+    - service: start_elasticsearch
+  - unless: '/usr/share/elasticsearch/bin/plugin list | grep license'
+
+install_shield:
+  cmd:
+  - run
+  - user: root
+  - name: '/usr/share/elasticsearch/bin/plugin install shield'
+  - require:
+    - pkg: elasticsearch
+    - cmd: install_license_shield
+  - require_in:
+    - service: start_elasticsearch
+  - unless: '/usr/share/elasticsearch/bin/plugin list | grep shield'
+
+{% else %}
+
+install_license_sheild:
   cmd:
     - run
     - user: root
@@ -10,7 +40,6 @@ install_license:
       - service: start_elasticsearch
     - unless: '/usr/share/elasticsearch/bin/plugin -l | grep license'
 
-
 install_shield:
   cmd:
     - run
@@ -18,10 +47,11 @@ install_shield:
     - name: '/usr/share/elasticsearch/bin/plugin -i elasticsearch/shield/latest'
     - require:
       - pkg: elasticsearch
-      - cmd: install_license
+      - cmd: install_license_shield
     - require_in:
       - service: start_elasticsearch
     - unless: '/usr/share/elasticsearch/bin/plugin -l | grep shield'
+{% endif %}
 
 create_shield_user:
   cmd:
