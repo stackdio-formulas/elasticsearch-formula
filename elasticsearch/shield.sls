@@ -3,6 +3,12 @@
 # (We may need to change the formula in the future to support this better)
 {% set es_version = salt['pillar.get']('elasticsearch:version', 'latest') %}
 
+{%- if es_version == '2.x'  -%}
+  {%- set shield_config_dir = '/usr/share/elasticsearch/plugins/shield/config' -%}
+{%- else -%}
+  {%- set shield_config_dir = '/usr/share/elasticsearch/config/shield' -%}
+{%- endif -%}
+
 {% if es_version == '2.x'  %}
 
 install_license_shield:
@@ -70,7 +76,7 @@ copy_shield_config:
   cmd:
     - run
     - user: root
-    - name: 'cp -r /usr/share/elasticsearch/config/shield /etc/elasticsearch'
+    - name: 'cp -r {{ shield_config_dir }} /etc/elasticsearch'
     - require:
       - cmd: create_shield_user
     - require_in:
