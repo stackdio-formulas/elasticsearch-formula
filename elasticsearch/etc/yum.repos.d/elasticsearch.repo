@@ -1,4 +1,11 @@
-{%- set es_version = salt['pillar.get']('elasticsearch:version', 'latest') -%}
+{%- set spl = pillar.elasticsearch.version.split('.') -%}
+{%- set major = spl[0] | int -%}
+{%- set minor = spl[1] | int -%}
+{%- if major >= 2 -%}
+  {%- set es_version = major ~ '.x' -%}
+{%- else -%}
+  {%- set es_version = major ~ '.' ~ minor -%}
+{%- endif -%}
 [elasticsearch-{{ es_version }}]
 name=Elasticsearch repository for {{ es_version }}.x packages
 baseurl=http://packages.elastic.co/elasticsearch/{{ es_version }}/centos

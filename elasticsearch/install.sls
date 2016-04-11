@@ -1,4 +1,5 @@
 {%- set config_only = 'elasticsearch.config_only' in grains.roles -%}
+{%- set es_version = pillar.elasticsearch.version -%}
 
 {% if grains['os_family'] == 'RedHat' %}
 # Centos
@@ -52,6 +53,7 @@ import_repo_key:
 elasticsearch:
   pkg:
     - installed
+    - version: {{ es_version }}
 
 /etc/elasticsearch:
   file:
