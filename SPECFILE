@@ -24,6 +24,7 @@ components:
 pillar_defaults:
     elasticsearch:
         version: 2.x
+        version_number_exact: false
         master_heap_size: 1g
         heap_size: 1g
         replicas: 2

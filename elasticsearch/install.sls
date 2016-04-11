@@ -48,12 +48,13 @@ import_repo_key:
       - pkg: elasticsearch
 {% endif %}
 
-
 elasticsearch:
   pkg:
     - installed
     - name: elasticsearch 
+{%- if pillar.eleasticsearch.version_number_exact -%}
     - version: 2.2.0-1
+{%- endif -%}
 
 /etc/elasticsearch:
   file:
