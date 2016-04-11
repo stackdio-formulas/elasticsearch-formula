@@ -52,7 +52,7 @@ import_repo_key:
 elasticsearch:
   pkg:
     - installed
-    - name: elasticsearch-2.2.2-1
+    - name: elasticsearch: 2.2.2-1
 
 /etc/elasticsearch:
   file:
