@@ -53,7 +53,7 @@ import_repo_key:
 elasticsearch:
   pkg:
     - installed
-    - version: {{ es_version }}
+    - version: {{ es_version }}-1
 
 /etc/elasticsearch:
   file:
