@@ -1,12 +1,6 @@
 {% set marvel_version = salt['pillar.get']('elasticsearch:marvel:version', 'latest') %}
 
-{% set es_version = salt['pillar.get']('elasticsearch:version', 'latest') %}
-
-# This 2.x is how ES is describing their versions -
-# they have a single yum repository with all the 2.x versions in it
-# (We may need to change the formula in the future to support this better)
-
-{% if es_version == '2.x'  %}
+{% if pillar.elasticsearch.version.split('.')[0] | int >= 2 %}
 install_license:
   cmd:
   - run
