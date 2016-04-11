@@ -30,6 +30,12 @@
 
 {%- set num_replicas = salt['pillar.get']('elasticsearch:replicas', 2) -%}
 
+{%- if pillar.elasticsearch.marvel.external_cluster -%}
+    {%- set marvel_nodes = [ {'fqdn': pillar.elasticsearch.marvel.external_cluster} ] -%}
+{%- else -%}
+    {%- set marvel_nodes = data_nodes -%}
+{%- endif -%}
+
 # Naming
 cluster.name: {{ grains.namespace }}
 node.name: {{ grains.id }}
@@ -63,16 +69,25 @@ path.logs: /mnt/elasticsearch/logs
 bootstrap.mlockall: true
 
 {%- if pillar.elasticsearch.marvel.install %}
-    {%- if pillar.elasticsearch.marvel.external_cluster %}
-        {%- if pillar.elasticsearch.version.split('.')[0] | int < 2 %}
-marvel.agent.exporter.es.hosts: ["{{ pillar.elasticsearch.marvel.external_cluster }}:9200"]
-         {%- else %}
+
+{%- if pillar.elasticsearch.version.split('.')[0] | int < 2 %}
+# ES 1.x
+marvel.agent.exporter.es.hosts:
+  {% for node in marvel_nodes %}
+  - {{ node.fqdn }}:9200
+  {% endfor %}
+
+{%- else %}
+# ES 2.x
 marvel.agent.exporters:
   id1:
     type: http
-    host: ["http://{{ pillar.elasticsearch.marvel.external_cluster }}:9200"]
-         {%- endif %}
-    {%- endif %}
+    host:
+      {% for node in marvel_nodes %}
+      - {{ node.fqdn }}:9200
+      {% endfor %}
+
+{%- endif %}
 {%- endif %}
 
 {%- if pillar.elasticsearch.marvel.is_external %}
