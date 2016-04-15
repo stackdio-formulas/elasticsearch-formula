@@ -4,6 +4,9 @@
 
 include:
   - elasticsearch.install
+  {% if salt['pillar.get']('elasticsearch:encrypted', False) %}
+  - elasticsearch.shield
+  {% endif %}
 
 {% if master or data or client %}
 invalid_configuration:
