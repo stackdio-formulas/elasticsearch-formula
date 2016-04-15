@@ -16,3 +16,14 @@ invalid_configuration:
     - result: False
     - comment: "Please don't have a master, data, or client node on a config only node"
 {% endif %}
+
+start_elasticsearch:
+  service:
+    - dead
+    - name: elasticsearch
+    - enable: False
+    - require:
+      - pkg: elasticsearch
+    - watch:
+      - file: /etc/elasticsearch/elasticsearch.yml
+      - file: elasticsearch_default_config
