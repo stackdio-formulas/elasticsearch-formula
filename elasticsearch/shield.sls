@@ -1,15 +1,10 @@
-# This 2.x is how ES is describing their versions -
-# they have a single yum repository with all the 2.x versions in it
-# (We may need to change the formula in the future to support this better)
-{% set es_version = salt['pillar.get']('elasticsearch:version', 'latest') %}
-
-{%- if es_version == '2.x'  -%}
+{%- if pillar.elasticsearch.version.split('.')[0] | int >= 2  -%}
   {%- set shield_config_dir = '/usr/share/elasticsearch/plugins/shield/config' -%}
 {%- else -%}
   {%- set shield_config_dir = '/usr/share/elasticsearch/config/shield' -%}
 {%- endif -%}
 
-{% if es_version == '2.x'  %}
+{% if pillar.elasticsearch.version.split('.')[0] | int >= 2  %}
 
 install_license_shield:
   cmd:
