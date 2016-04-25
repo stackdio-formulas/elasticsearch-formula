@@ -1,38 +1,57 @@
-
 {% set kibana_version = pillar.elasticsearch.kibana.version %}
 
-kibana:
-  user:
-    - present
-    - home: /var/lib/kibana
-    - shell: /sbin/nologin
-    - system: true
-    - groups:
-      - kibana
-    - require:
-      - group: kibana
-  group:
-    - present
-    - system: true
+{% if grains['os_family'] == 'RedHat' %}
+# Centos
 
-# Install
-/usr/share/kibana:
-  archive:
-    - extracted
-    - name: /usr/share
-    - if_missing: /usr/share/kibana
+import_repo_key:
+  cmd:
+  - run
+  - name: 'rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch'
+  - unless: 'rpm -qa | grep elasticsearch'
+
+/etc/yum.repos.d/kibana.repo:
+  file:
+    - managed
+    - mkdirs: false
+    - source: salt://elasticsearch/etc/yum.repos.d/kibana.repo
+    - template: jinja
     - user: root
     - group: root
-    - source: https://download.elastic.co/kibana/kibana/kibana-{{ kibana_version }}-linux-x64.tar.gz
-    - source_hash: https://download.elastic.co/kibana/kibana/kibana-{{ kibana_version }}-linux-x64.tar.gz.sha1.txt
-    - archive_format: tar
+    - mode: 644
     - require:
-      - user: kibana
+      - cmd: import_repo_key
+    - require_in:
+      - pkg: kibana
+
+{% elif grains['os_family'] == 'Debian' %}
+# Ubuntu
+
+import_repo_key:
+  cmd:
+  - run
+  - user: root
+  - name: 'curl https://packages.elastic.co/GPG-KEY-elasticsearch | apt-key add -'
+  - unless: 'apt-key list | grep Elasticsearch'
+
+/etc/apt/sources.list.d/kibana.list:
   file:
-    - rename
-    - source: /usr/share/kibana-{{ kibana_version }}-linux-x64
+    - managed
+    - mkdirs: false
+    - source: salt://elasticsearch/etc/apt/sources.list.d/kibana.list
+    - template: jinja
+    - user: root
+    - group: root
+    - mode: 644
     - require:
-      - archive: /usr/share/kibana
+      - cmd: import_repo_key
+    - require_in:
+      - pkg: kibana
+{% endif %}
+
+
+kibana:
+  pkg:
+    - installed
 
 /usr/share/kibana/config/kibana.yml:
   file:
@@ -43,39 +62,7 @@ kibana:
     - group: root
     - mode: 644
     - require:
-      - file: /usr/share/kibana
-
-/etc/init.d/kibana:
-  file:
-    - managed
-    - source: salt://elasticsearch/etc/kibana/init-rhel
-    - template: jinja
-    - user: root
-    - group: root
-    - mode: 755
-
-/var/log/kibana:
-  file:
-    - directory
-    - user: kibana
-    - group: kibana
-    - recurse:
-      - user
-      - group
-    - require:
-      - user: kibana
-
-/var/run/kibana:
-  file:
-    - directory
-    - user: kibana
-    - group: kibana
-    - recurse:
-      - user
-      - group
-    - require:
-      - user: kibana
-
+      - pkg: kibana
 
 {% if salt['pillar.get']('elasticsearch:marvel:install', True) %}
 
@@ -84,12 +71,11 @@ install_marvel:
   cmd:
   - run
   - user: root
-  - name: '/usr/share/kibana/bin/kibana plugin --install elasticsearch/marvel/{{ marvel_version }}'
+  - name: '/opt/kibana/bin/kibana plugin --install elasticsearch/marvel/{{ marvel_version }}'
   - require:
-    - file: /usr/share/kibana
+    - pkg: kibana
   - require_in:
     - service: kibana-svc
-    - file: /usr/share/kibana/optimize/.babelcache.json
   - unless: 'test -d /usr/share/kibana/installedPlugins/marvel'
 {% endif %}
 
@@ -98,42 +84,19 @@ install_sense:
   cmd:
   - run
   - user: root
-  - name: '/usr/share/kibana/bin/kibana plugin --install elastic/sense'
+  - name: '/opt/kibana/bin/kibana plugin --install elastic/sense'
   - require:
-    - file: /usr/share/kibana
+    - pkg: kibana
   - require_in:
     - service: kibana-svc
-    - file: /usr/share/kibana/optimize/.babelcache.json
   - unless: 'test -d /usr/share/kibana/installedPlugins/sense'
-
 {% endif %}
-
-/usr/share/kibana/optimize/.babelcache.json:
-  file:
-    - symlink
-    - target: /var/run/kibana/.babelcache.json
-    - force: true
-    - require:
-      - file: /var/run/kibana
-      - file: /usr/share/kibana
-
-/var/run/kibana/.babelcache.json:
-  file:
-    - managed
-    - user: kibana
-    - group: kibana
-    - require:
-      - file: /usr/share/kibana/optimize/.babelcache.json
 
 kibana-svc:
   service:
     - running
     - name: kibana
+    - require:
+      - pkg: kibana
     - watch:
-      - file: /usr/share/kibana
       - file: /usr/share/kibana/config/kibana.yml
-      - file: /etc/init.d/kibana
-      - file: /var/log/kibana
-      - file: /var/run/kibana
-      - file: /usr/share/kibana/optimize/.babelcache.json
-      - file: /var/run/kibana/.babelcache.json
