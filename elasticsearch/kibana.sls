@@ -53,7 +53,7 @@ kibana:
   pkg:
     - installed
 
-/usr/share/kibana/config/kibana.yml:
+/opt/kibana/config/kibana.yml:
   file:
     - managed
     - source: salt://elasticsearch/etc/kibana/kibana.yml
@@ -76,7 +76,7 @@ install_marvel:
     - pkg: kibana
   - require_in:
     - service: kibana-svc
-  - unless: 'test -d /usr/share/kibana/installedPlugins/marvel'
+  - unless: 'test -d /opt/kibana/installedPlugins/marvel'
 {% endif %}
 
 {% if salt['pillar.get']('elasticsearch:sense:install', True) %}
@@ -89,7 +89,7 @@ install_sense:
     - pkg: kibana
   - require_in:
     - service: kibana-svc
-  - unless: 'test -d /usr/share/kibana/installedPlugins/sense'
+  - unless: 'test -d /opt/kibana/installedPlugins/sense'
 {% endif %}
 
 kibana-svc:
@@ -99,4 +99,4 @@ kibana-svc:
     - require:
       - pkg: kibana
     - watch:
-      - file: /usr/share/kibana/config/kibana.yml
+      - file: /opt/kibana/config/kibana.yml
