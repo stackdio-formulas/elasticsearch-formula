@@ -1,0 +1,4 @@
+{%- set spl = pillar.elasticsearch.kibana.version.split('.') -%}
+{%- set major = spl[0] -%}
+{%- set minor = spl[1] -%}
+deb http://packages.elastic.co/kibana/{{ major }}.{{ minor }}/debian stable main
