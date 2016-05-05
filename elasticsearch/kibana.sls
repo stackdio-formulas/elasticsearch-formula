@@ -76,6 +76,7 @@ install_marvel:
     - pkg: kibana
   - require_in:
     - service: kibana-svc
+    - file: /opt/kibana/optimize/.babelcache.json
   - unless: 'test -d /opt/kibana/installedPlugins/marvel'
 {% endif %}
 
@@ -89,8 +90,17 @@ install_sense:
     - pkg: kibana
   - require_in:
     - service: kibana-svc
+    - file: /opt/kibana/optimize/.babelcache.json
   - unless: 'test -d /opt/kibana/installedPlugins/sense'
 {% endif %}
+
+/opt/kibana/optimize/.babelcache.json:
+  file:
+    - managed
+    - user: kibana
+    - group: kibana
+    - require:
+      - pkg: kibana
 
 kibana-svc:
   service:
@@ -98,5 +108,6 @@ kibana-svc:
     - name: kibana
     - require:
       - pkg: kibana
+      - file: /opt/kibana/optimize/.babelcache.json
     - watch:
       - file: /opt/kibana/config/kibana.yml
