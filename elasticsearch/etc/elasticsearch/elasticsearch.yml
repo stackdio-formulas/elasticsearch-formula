@@ -92,6 +92,10 @@ index:
   number_of_shards: {{ num_shards }}
   number_of_replicas: {{ num_replicas }}
 
+threadpool:
+  bulk:
+    queue_size: 1000
+
 {%- if pillar.elasticsearch.aws.access_key %}
 cloud:
   aws:
