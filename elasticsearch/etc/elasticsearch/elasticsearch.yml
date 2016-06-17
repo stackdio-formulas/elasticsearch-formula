@@ -39,15 +39,15 @@ node.client: {{ client | lower }}
 
 # Network settings
 network.host: 0.0.0.0
-http.port: 9200
-transport.tcp.port: 9300
+http.port: {{ pillar.elasticsearch.http_port }}
+transport.tcp.port: {{ pillar.elasticsearch.tcp_port }}
 
 # Discovery - just use the master nodes & disable multicast
 discovery.zen.ping.multicast.enabled: false
 discovery.zen.minimum_master_nodes: {{ ((num_master_nodes / 2) + 1) | int }}
 discovery.zen.ping.unicast.hosts:
   {% for node in master_nodes %}
-  - {{ node.fqdn }}
+  - {{ node.fqdn }}:{{ pillar.elasticsearch.tcp_port }}
   {% endfor %}
 
 # Recovery settings - this should help A LOT when restarting clusters.
@@ -65,12 +65,12 @@ bootstrap.mlockall: true
 {%- if pillar.elasticsearch.marvel.install %}
     {%- if pillar.elasticsearch.marvel.external_cluster %}
         {%- if pillar.elasticsearch.version.split('.')[0] | int < 2 %}
-marvel.agent.exporter.es.hosts: ["{{ pillar.elasticsearch.marvel.external_cluster }}:9200"]
+marvel.agent.exporter.es.hosts: ["{{ pillar.elasticsearch.marvel.external_cluster }}:{{ pillar.elasticsearch.http_port }}"]
          {%- else %}
 marvel.agent.exporters:
   id1:
     type: http
-    host: ["http://{{ pillar.elasticsearch.marvel.external_cluster }}:9200"]
+    host: ["http://{{ pillar.elasticsearch.marvel.external_cluster }}:{{ pillar.elasticsearch.http_port }}"]
          {%- endif %}
     {%- endif %}
 {%- endif %}
