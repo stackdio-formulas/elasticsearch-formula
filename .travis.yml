@@ -12,6 +12,8 @@ cache:
 
 ## Customize dependencies
 install:
+  - pip install -U pip
+  - pip install -U wheel
   - pip install -U https://github.com/stackdio/stackdio-formula-validator/archive/master.tar.gz
 
 # Validate our formula
