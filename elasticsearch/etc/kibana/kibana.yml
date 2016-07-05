@@ -8,6 +8,7 @@
   {%- set master_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.master', 'grains.items', 'compound').values() -%}
   {%- set es_host = master_nodes[0].fqdn -%}
 {%- endif -%}
+{%- set shield = salt['pillar.get']('elasticsearch:encrypted', False) -%}
 # Kibana is served by a back end server. This controls which port to use.
 # server.port: 5601
 
@@ -19,7 +20,7 @@
 # server.basePath: ""
 
 # The Elasticsearch instance to use for all your queries.
-elasticsearch.url: "http://{{ es_host }}:{{ pillar.elasticsearch.http_port }}"
+elasticsearch.url: "http{% if shield %}s{% endif %}://{{ es_host }}:{{ pillar.elasticsearch.http_port }}"
 
 # preserve_elasticsearch_host true will send the hostname specified in `elasticsearch`. If you set it to false,
 # then the host you use to connect to *this* Kibana instance will be sent.
@@ -32,20 +33,21 @@ elasticsearch.url: "http://{{ es_host }}:{{ pillar.elasticsearch.http_port }}"
 # The default application to load.
 # kibana.defaultAppId: "discover"
 
+{% if shield %}
 # If your Elasticsearch is protected with basic auth, these are the user credentials
 # used by the Kibana server to perform maintenance on the kibana_index at startup. Your Kibana
 # users will still need to authenticate with Elasticsearch (which is proxied through
 # the Kibana server)
-# elasticsearch.username: "user"
-# elasticsearch.password: "pass"
+elasticsearch.username: "synthesys"
+elasticsearch.password: "123456"
 
 # SSL for outgoing requests from the Kibana Server to the browser (PEM formatted)
-# server.ssl.cert: /path/to/your/server.crt
-# server.ssl.key: /path/to/your/server.key
+server.ssl.cert: /etc/elasticsearch/server.crt
+server.ssl.key: /etc/elasticsearch/server.key
 
 # Optional setting to validate that your Elasticsearch backend uses the same key files (PEM formatted)
-# elasticsearch.ssl.cert: /path/to/your/client.crt
-# elasticsearch.ssl.key: /path/to/your/client.key
+elasticsearch.ssl.cert: /etc/elasticsearch/client.crt
+elasticsearch.ssl.key: /etc/elasticsearch/client.key
 
 # If you need to provide a CA certificate for your Elasticsearch instance, put
 # the path of the pem file here.
@@ -53,7 +55,8 @@ elasticsearch.url: "http://{{ es_host }}:{{ pillar.elasticsearch.http_port }}"
 
 # Set to false to have a complete disregard for the validity of the SSL
 # certificate.
-# elasticsearch.ssl.verify: true
+elasticsearch.ssl.verify: true
+{% endif %}
 
 # Time in milliseconds to wait for elasticsearch to respond to pings, defaults to
 # request_timeout setting

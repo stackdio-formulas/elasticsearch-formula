@@ -78,7 +78,7 @@ copy_shield_config:
     - require_in:
       - service: start_elasticsearch
 
-/root/server.crt:
+/etc/elasticsearch/server.crt:
   file:
     - managed
     - user: root
@@ -86,7 +86,7 @@ copy_shield_config:
     - mode: 664
     - contents_pillar: elasticsearch:encryption:certificate
 
-/root/server.key:
+/etc/elasticsearch/server.key:
   file:
     - managed
     - user: root
@@ -98,10 +98,10 @@ convert-to-jks:
   cmd:
     - run
     - user: root
-    - name: echo 'elasticsearch' | openssl pkcs12 -export -name {{ grains.id }} -in /root/server.crt -inkey /root/server.key -out /etc/elasticsearch/elasticsearch.pkcs12 -password stdin
+    - name: echo 'elasticsearch' | openssl pkcs12 -export -name {{ grains.id }} -in /etc/elasticsearch/server.crt -inkey /etc/elasticsearch/server.key -out /etc/elasticsearch/elasticsearch.pkcs12 -password stdin
     - require:
-      - file: /root/server.crt
-      - file: /root/server.key
+      - file: /etc/elasticsearch/server.crt
+      - file: /etc/elasticsearch/server.key
 
 create-keystore:
   cmd:
