@@ -46,8 +46,8 @@ server.ssl.cert: /etc/elasticsearch/server.crt
 server.ssl.key: /etc/elasticsearch/server.key
 
 # Optional setting to validate that your Elasticsearch backend uses the same key files (PEM formatted)
-elasticsearch.ssl.cert: /etc/elasticsearch/client.crt
-elasticsearch.ssl.key: /etc/elasticsearch/client.key
+elasticsearch.ssl.cert: /etc/elasticsearch/server.crt
+elasticsearch.ssl.key: /etc/elasticsearch/server.key
 
 # If you need to provide a CA certificate for your Elasticsearch instance, put
 # the path of the pem file here.
