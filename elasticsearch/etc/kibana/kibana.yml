@@ -55,7 +55,9 @@ elasticsearch.ssl.key: /etc/elasticsearch/server.key
 
 # Set to false to have a complete disregard for the validity of the SSL
 # certificate.
-elasticsearch.ssl.verify: true
+
+# TODO this doesn't work when it's true, so I'm leaving it as false for now
+elasticsearch.ssl.verify: false
 {% endif %}
 
 # Time in milliseconds to wait for elasticsearch to respond to pings, defaults to
