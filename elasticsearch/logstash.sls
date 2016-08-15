@@ -22,3 +22,5 @@ logstash-pkg:
     - name: logstash
     - require:
       - pkgrepo: logstash-repo
+
+
