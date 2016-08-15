@@ -20,6 +20,9 @@ components:
   - title: Elasticsearch Monitoring Client
     description: Monitoring with Sensu for ES client addons 
     sls_path: elasticsearch.monitor
+  - title: Logstash 
+    description: Logstash for listening and writing to ES
+    sls_path: elasticsearch.logstash
 
 pillar_defaults:
     elasticsearch:
