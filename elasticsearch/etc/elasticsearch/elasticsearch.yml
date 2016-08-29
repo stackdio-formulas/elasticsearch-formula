@@ -23,12 +23,18 @@
 {%- set num_master_nodes = master_nodes | length -%}
 {%- set num_data_nodes = data_nodes | length -%}
 
-{%- set num_shards = (num_data_nodes / 2) | int -%}
-{%- if num_shards < 5 -%}
-    {%- set num_shards = 5 -%}
+{# Grab from pillar data #}
+{%- set num_shards = pillar.elasticsearch.shards -%}
+
+{# Provide a default if there wasn't anything in the pillar data #}
+{%- if not num_shards -%}
+  {%- set num_shards = (num_data_nodes / 2) | int -%}
+  {%- if num_shards < 5 -%}
+      {%- set num_shards = 5 -%}
+  {%- endif -%}
 {%- endif -%}
 
-{%- set num_replicas = salt['pillar.get']('elasticsearch:replicas', 2) -%}
+{%- set num_replicas = pillar.elasticsearch.replicas -%}
 
 # Naming
 cluster.name: {{ grains.namespace }}
@@ -51,8 +57,8 @@ discovery.zen.ping.unicast.hosts:
   {% endfor %}
 
 # Recovery settings - this should help A LOT when restarting clusters.
-gateway.recover_after_time: 2m
-gateway.recover_after_nodes: {{ (num_data_nodes * 0.85) | int }}
+gateway.recover_after_time: {{ pillar.elasticsearch.recover_time }}
+gateway.recover_after_data_nodes: {{ (num_data_nodes * 0.75) | int }}
 
 # Storage paths
 path.data: /mnt/elasticsearch/data
@@ -96,10 +102,16 @@ threadpool:
   bulk:
     queue_size: 1000
 
-{%- if pillar.elasticsearch.aws.access_key %}
+{% if pillar.elasticsearch.aws.access_key %}
 cloud:
   aws:
     region: {{ pillar.elasticsearch.aws.region }}
     access_key: {{ pillar.elasticsearch.aws.access_key }}
     secret_key: {{ pillar.elasticsearch.aws.secret_key }}
-{%- endif %}
+{% endif %}
+
+{% if pillar.elasticsearch.extra_settings %}
+{% for key, value in pillar.elasticsearch.extra_settings.items() %}
+{{ key }}: {{ value | json }}
+{% endfor %}
+{% endif %}

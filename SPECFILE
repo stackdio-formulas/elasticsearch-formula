@@ -29,6 +29,8 @@ pillar_defaults:
         master_heap_size: 1g
         heap_size: 1g
         replicas: 2
+        shards:
+        recover_time: 2m
         discover_master: false
         marvel:
             install: true
@@ -47,3 +49,4 @@ pillar_defaults:
             region: null
             access_key: null
             secret_key: null
+        extra_settings:
