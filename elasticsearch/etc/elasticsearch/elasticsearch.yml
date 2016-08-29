@@ -110,8 +110,6 @@ cloud:
     secret_key: {{ pillar.elasticsearch.aws.secret_key }}
 {% endif %}
 
-{% if pillar.elasticsearch.extra_settings %}
 {% for key, value in pillar.elasticsearch.extra_settings.items() %}
 {{ key }}: {{ value | json }}
 {% endfor %}
-{% endif %}
