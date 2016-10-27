@@ -124,11 +124,11 @@ create-truststore:
     - require_in:
       - service: start_elasticsearch
 
-# Don't leave the CA lying around
+# Don't leave the CA lying around.  Must be a cmd instead of file.absent, as it causes a name collision otherwise.
 remove-ca:
-  file:
-    - absent
-    - name: /etc/elasticsearch/ca
+  cmd:
+    - run
+    - name: rm -rf /etc/elasticsearch/ca
     - require:
       - cmd: create-truststore
 
@@ -178,6 +178,6 @@ import-signed-crt:
       - cmd: sign-csr
     - require_in:
       - service: start_elasticsearch
-      - file: remove-ca
+      - cmd: remove-ca
 
 {% endif %}
