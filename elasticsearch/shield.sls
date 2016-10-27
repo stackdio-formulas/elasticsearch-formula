@@ -116,7 +116,7 @@ create-truststore:
   cmd:
     - run
     - user: root
-    - name: /usr/java/latest/bin/keytool -importcert -keystore /etc/elasticsearch/elasticsearch.truststore -storepass elasticsearch -file /etc/elasticsearch/ca/certs/cacert.pem -alias elasticsearch-ca
+    - name: /usr/java/latest/bin/keytool -importcert -keystore /etc/elasticsearch/elasticsearch.truststore -storepass elasticsearch -file /etc/elasticsearch/ca/certs/cacert.pem -alias elasticsearch-ca -noprompt
     - require:
       - file: /etc/elasticsearch/ca
       - file: /etc/elasticsearch/ca/private/cakey.pem
