@@ -112,12 +112,20 @@ copy_shield_config:
     - require:
       - file: /etc/elasticsearch/ca
 
+# Delete before re-creating to ensure idempotency
+delete-truststore:
+  cmd:
+    - run
+    - user: root
+    - name: rm -f /etc/elasticsearch/elasticsearch.truststore
+
 create-truststore:
   cmd:
     - run
     - user: root
     - name: /usr/java/latest/bin/keytool -importcert -keystore /etc/elasticsearch/elasticsearch.truststore -storepass elasticsearch -file /etc/elasticsearch/ca/certs/cacert.pem -alias elasticsearch-ca -noprompt
     - require:
+      - cmd: delete-truststore
       - file: /etc/elasticsearch/ca
       - file: /etc/elasticsearch/ca/private/cakey.pem
       - file: /etc/elasticsearch/ca/certs/cacert.pem
@@ -141,6 +149,7 @@ create-keystore:
     - source: /etc/elasticsearch/elasticsearch.truststore
     - user: elasticsearch
     - group: elasticsearch
+    - force: true
     - mode: 600
     - require:
       - cmd: create-truststore
