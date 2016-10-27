@@ -174,7 +174,7 @@ sign-csr:
   cmd:
     - run
     - user: root
-    - name: 'printf "{{ pillar.elasticsearch.encryption.ca_key_pass }}\ny\n" | openssl ca -in /etc/elasticsearch/elasticsearch.csr -notext -out /etc/elasticsearch/elasticsearch-signed.crt -config /etc/elasticsearch/ca/conf/caconfig.cnf -extensions v3_req'
+    - name: 'printf "{{ pillar.elasticsearch.encryption.ca_key_pass }}\ny\ny\n" | openssl ca -in /etc/elasticsearch/elasticsearch.csr -notext -out /etc/elasticsearch/elasticsearch-signed.crt -config /etc/elasticsearch/ca/conf/caconfig.cnf -extensions v3_req'
     - require:
       - cmd: create-csr
 
