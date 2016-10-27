@@ -5,7 +5,6 @@
 {%- endif -%}
 
 {% if pillar.elasticsearch.version.split('.')[0] | int >= 2  %}
-{% set client = 'elasticsearch.client' in grains.roles %}
 
 install_license_shield:
   cmd:
@@ -140,7 +139,7 @@ remove-ca:
     - require:
       - cmd: create-truststore
 
-{% if not client %}
+{% if 'elasticsearch.config_only' not in grains.roles %}
 {# The client doesn't need a key/cert - it just needs the truststore #}
 create-keystore:
   file:

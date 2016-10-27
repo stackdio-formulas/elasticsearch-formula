@@ -83,7 +83,7 @@ marvel.agent.enabled: false
 # Shield settings
 shield.http.ssl: true
 shield.transport.ssl: true
-{% if not client %}
+{% if 'elasticsearch.config_only' not in grains.roles %}
 shield.ssl.keystore.path: /etc/elasticsearch/elasticsearch.keystore
 shield.ssl.keystore.password: elasticsearch
 shield.ssl.keystore.key_password: elasticsearch
