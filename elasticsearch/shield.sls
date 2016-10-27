@@ -147,8 +147,8 @@ create-keystore:
     - copy
     - name: /etc/elasticsearch/elasticsearch.keystore
     - source: /etc/elasticsearch/elasticsearch.truststore
-    - user: elasticsearch
-    - group: elasticsearch
+    - user: root
+    - group: root
     - force: true
     - mode: 600
     - require:
@@ -157,7 +157,7 @@ create-keystore:
 create-key:
   cmd:
     - run
-    - user: elasticsearch
+    - user: root
     - name: 'printf "Elasticsearch {{ grains.id }}\n\nElasticsearch\nUS\nUS\nUS\nyes\n" | /usr/java/latest/bin/keytool -genkey -alias {{ grains.id }} -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch -keyalg RSA -keysize 2048 -validity 8000 -ext san=dns:{{ grains.fqdn }}'
     - require:
       - file: create-keystore
@@ -165,7 +165,7 @@ create-key:
 create-csr:
   cmd:
     - run
-    - user: elasticsearch
+    - user: root
     - name: '/usr/java/latest/bin/keytool -certreq -alias {{ grains.id }} -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch -file /etc/elasticsearch/elasticsearch.csr -keyalg rsa -ext san=dns:{{ grains.fqdn }}'
     - require:
       - cmd: create-key
@@ -173,7 +173,7 @@ create-csr:
 sign-csr:
   cmd:
     - run
-    - user: elasticsearch
+    - user: root
     - name: 'printf "{{ pillar.elasticsearch.encryption.ca_key_pass }}\ny\n" | openssl ca -in /etc/elasticsearch/elasticsearch.csr -notext -out /etc/elasticsearch/elasticsearch-signed.crt -config /etc/elasticsearch/ca/conf/caconfig.cnf -extensions v3_req'
     - require:
       - cmd: create-csr
@@ -181,12 +181,22 @@ sign-csr:
 import-signed-crt:
   cmd:
     - run
-    - user: elasticsearch
+    - user: root
     - name: '/usr/java/latest/bin/keytool -importcert -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch -file /etc/elasticsearch/elasticsearch-signed.crt -alias {{ grains.id }}'
     - require:
       - cmd: sign-csr
     - require_in:
       - service: start_elasticsearch
       - cmd: remove-ca
+
+chown-keystore:
+  cmd:
+    - run
+    - user: root
+    - name: chown elasticsearch:elasticsearch /etc/elasticsearch/elasticsearch.keystore
+    - require:
+      - cmd: import-signed-crt
+    - require_in:
+      - service: start_elasticsearch
 
 {% endif %}
