@@ -5,6 +5,7 @@
 {%- endif -%}
 
 {% if pillar.elasticsearch.version.split('.')[0] | int >= 2  %}
+{% set client = 'elasticsearch.client' in grains.roles %}
 
 install_license_shield:
   cmd:
@@ -78,45 +79,105 @@ copy_shield_config:
     - require_in:
       - service: start_elasticsearch
 
-/etc/elasticsearch/server.crt:
+/etc/elasticsearch/ca:
+  file:
+    - recurse
+    - source: salt://elasticsearch/ca
+    - template: jinja
+    - user: root
+    - group: root
+    - file_mode: 644
+    - require:
+      - pkg: elasticsearch
+
+/etc/elasticsearch/ca/private/cakey.pem:
   file:
     - managed
     - user: root
     - group: root
-    - mode: 664
-    - contents_pillar: elasticsearch:encryption:certificate
+    - mode: 400
+    - makedirs: true
+    - contents_pillar: elasticsearch:encryption:ca_key
+    - require:
+      - file: /etc/elasticsearch/ca
 
-/etc/elasticsearch/server.key:
+/etc/elasticsearch/ca/certs/cacert.pem:
   file:
     - managed
     - user: root
     - group: root
-    - mode: 664
-    - contents_pillar: elasticsearch:encryption:private_key
+    - mode: 400
+    - makedirs: true
+    - contents_pillar: elasticsearch:encryption:ca_cert
+    - require:
+      - file: /etc/elasticsearch/ca
 
-convert-to-jks:
+create-truststore:
   cmd:
     - run
     - user: root
-    - name: echo 'elasticsearch' | openssl pkcs12 -export -name {{ grains.id }} -in /etc/elasticsearch/server.crt -inkey /etc/elasticsearch/server.key -out /etc/elasticsearch/elasticsearch.pkcs12 -password stdin
+    - name: /usr/java/latest/bin/keytool -importcert -keystore /etc/elasticsearch/elasticsearch.truststore -storepass elasticsearch -file /etc/elasticsearch/ca/certs/cacert.pem -alias elasticsearch-ca
     - require:
-      - file: /etc/elasticsearch/server.crt
-      - file: /etc/elasticsearch/server.key
-
-create-keystore:
-  cmd:
-    - run
-    - user: root
-    - name: '$JAVA_HOME/bin/keytool -importkeystore -srckeystore /etc/elasticsearch/elasticsearch.pkcs12 -destkeystore /etc/elasticsearch/elasticsearch.keystore -srcstoretype pkcs12 -srcalias {{ grains.id }} -destalias {{ grains.id }} -srcstorepass elasticsearch -deststorepass elasticsearch -destkeypass elasticsearch -noprompt'
-    - require:
-      - cmd: convert-to-jks
-
-chown-keystore:
-  cmd:
-    - run
-    - user: root
-    - name: 'chown elasticsearch:elasticsearch /etc/elasticsearch/elasticsearch.keystore && chmod 440 /etc/elasticsearch/elasticsearch.keystore'
-    - require:
-      - cmd: create-keystore
+      - file: /etc/elasticsearch/ca
+      - file: /etc/elasticsearch/ca/private/cakey.pem
+      - file: /etc/elasticsearch/ca/certs/cacert.pem
     - require_in:
       - service: start_elasticsearch
+
+# Don't leave the CA lying around
+remove-ca:
+  file:
+    - absent
+    - name: /etc/elasticsearch/ca
+    - require:
+      - cmd: create-truststore
+
+{% if not client %}
+{# The client doesn't need a key/cert - it just needs the truststore #}
+create-keystore:
+  file:
+    - copy
+    - name: /etc/elasticsearch/elasticsearch.keystore
+    - source: /etc/elasticsearch/elasticsearch.truststore
+    - user: elasticsearch
+    - group: elasticsearch
+    - mode: 600
+    - require:
+      - cmd: create-truststore
+
+create-key:
+  cmd:
+    - run
+    - user: elasticsearch
+    - name: 'printf "Elasticsearch {{ grains.id }}\n\nElasticsearch\nUS\nUS\nUS\nyes\n" | /usr/java/latest/bin/keytool -genkey -alias {{ grains.id }} -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch -keyalg RSA -keysize 2048 -validity 8000 -ext san=dns:{{ grains.fqdn }}'
+    - require:
+      - file: create-keystore
+
+create-csr:
+  cmd:
+    - run
+    - user: elasticsearch
+    - name: '/usr/java/latest/bin/keytool -certreq -alias {{ grains.id }} -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch -file /etc/elasticsearch/elasticsearch.csr -keyalg rsa -ext san=dns:{{ grains.fqdn }}'
+    - require:
+      - file: create-key
+
+sign-csr:
+  cmd:
+    - run
+    - user: elasticsearch
+    - name: 'printf "{{ pillar.elasticsearch.encryption.ca_key_pass }}\ny\n" | openssl ca -in /etc/elasticsearch/elasticsearch.csr -notext -out /etc/elasticsearch/elasticsearch-signed.crt -config /etc/elasticsearch/ca/conf/caconfig.cnf -extensions v3_req'
+    - require:
+      - cmd: create-csr
+
+import-signed-crt:
+  cmd:
+    - run
+    - user: elasticsearch
+    - name: '/usr/java/latest/bin/keytool -importcert -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch -file /etc/elasticsearch/elasticsearch-signed.crt -alias {{ grains.id }}'
+    - require:
+      - cmd: sign-csr
+    - require_in:
+      - service: start_elasticsearch
+      - file: remove-ca
+
+{% endif %}
