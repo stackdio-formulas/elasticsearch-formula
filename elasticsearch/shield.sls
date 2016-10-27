@@ -159,7 +159,7 @@ create-csr:
     - user: elasticsearch
     - name: '/usr/java/latest/bin/keytool -certreq -alias {{ grains.id }} -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch -file /etc/elasticsearch/elasticsearch.csr -keyalg rsa -ext san=dns:{{ grains.fqdn }}'
     - require:
-      - file: create-key
+      - cmd: create-key
 
 sign-csr:
   cmd:
