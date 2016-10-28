@@ -131,18 +131,6 @@ create-truststore:
     - require_in:
       - service: start_elasticsearch
 
-# Don't leave the CA lying around.  Must be a cmd instead of file.absent, as it causes a name collision otherwise.
-remove-ca:
-  cmd:
-    - run
-    - name: rm -rf /etc/elasticsearch/ca
-    - require:
-      - cmd: create-truststore
-
-{#{% if 'elasticsearch.config_only' not in grains.roles %}#}
-
-{# The config_only SHOULDN'T need a key/cert - it just needs the truststore - however that doesn't work with synthesys currently #}
-
 create-keystore:
   file:
     - copy
@@ -188,7 +176,6 @@ import-signed-crt:
       - cmd: sign-csr
     - require_in:
       - service: start_elasticsearch
-      - cmd: remove-ca
 
 chown-keystore:
   cmd:
@@ -200,4 +187,11 @@ chown-keystore:
     - require_in:
       - service: start_elasticsearch
 
-{#{% endif %}#}
+# Don't leave the CA lying around.  Must be a cmd instead of file.absent, as it causes a name collision otherwise.
+remove-ca:
+  cmd:
+    - run
+    - name: rm -rf /etc/elasticsearch/ca
+    - require:
+      - cmd: create-truststore
+      - cmd: import-signed-cert
