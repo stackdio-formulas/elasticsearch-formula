@@ -1,12 +1,12 @@
 {%- set local = 'elasticsearch.client' in grains.roles or 'elasticsearch.master' in grains.roles or 'elasticsearch.data' in grains.roles -%}
 {%- set client_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.client', 'grains.items', 'compound').values() -%}
 {%- if local -%}
-  {%- set es_host = 'localhost' -%}
-{%- elif client_nodes -%}
+  {%- set es_host = grains.fqdn -%}
+{%- if client_nodes -%}
   {%- set es_host = client_nodes[0].fqdn -%}
 {%- else -%}
-  {%- set master_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.master', 'grains.items', 'compound').values() -%}
-  {%- set es_host = master_nodes[0].fqdn -%}
+  {%- set data_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data', 'grains.items', 'compound').values() -%}
+  {%- set es_host = data_nodes[0].fqdn -%}
 {%- endif -%}
 {%- set shield = salt['pillar.get']('elasticsearch:encrypted', False) -%}
 # Kibana is served by a back end server. This controls which port to use.
