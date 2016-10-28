@@ -139,8 +139,10 @@ remove-ca:
     - require:
       - cmd: create-truststore
 
-{% if 'elasticsearch.config_only' not in grains.roles %}
-{# The client doesn't need a key/cert - it just needs the truststore #}
+{#{% if 'elasticsearch.config_only' not in grains.roles %}#}
+
+{# The config_only SHOULDN'T need a key/cert - it just needs the truststore - however that doesn't work with synthesys currently #}
+
 create-keystore:
   file:
     - copy
@@ -198,4 +200,4 @@ chown-keystore:
     - require_in:
       - service: start_elasticsearch
 
-{% endif %}
+{#{% endif %}#}
