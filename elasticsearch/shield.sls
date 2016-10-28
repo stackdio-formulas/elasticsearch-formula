@@ -194,4 +194,4 @@ remove-ca:
     - name: rm -rf /etc/elasticsearch/ca
     - require:
       - cmd: create-truststore
-      - cmd: import-signed-cert
+      - cmd: import-signed-crt
