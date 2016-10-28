@@ -163,7 +163,7 @@ sign-csr:
   cmd:
     - run
     - user: root
-    - name: 'printf "{{ pillar.elasticsearch.encryption.ca_key_pass }}\ny\ny\n" | openssl ca -in /etc/elasticsearch/elasticsearch.csr -notext -out /etc/elasticsearch/elasticsearch-signed.crt -config /etc/elasticsearch/ca/conf/caconfig.cnf -extensions v3_req'
+    - name: 'printf "{{ pillar.elasticsearch.encryption.ca_key_pass }}\ny\ny\n" | openssl ca -in /etc/elasticsearch/elasticsearch.csr -notext -out /etc/elasticsearch/elasticsearch.crt -config /etc/elasticsearch/ca/conf/caconfig.cnf -extensions v3_req'
     - require:
       - cmd: create-csr
 
@@ -171,7 +171,7 @@ import-signed-crt:
   cmd:
     - run
     - user: root
-    - name: '/usr/java/latest/bin/keytool -importcert -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch -file /etc/elasticsearch/elasticsearch-signed.crt -alias {{ grains.id }}'
+    - name: '/usr/java/latest/bin/keytool -importcert -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch -file /etc/elasticsearch/elasticsearch.crt -alias {{ grains.id }}'
     - require:
       - cmd: sign-csr
     - require_in:

@@ -48,6 +48,41 @@ import_repo_key:
       - pkg: kibana
 {% endif %}
 
+{% if pillar.elasticsearch.encrypted %}
+/etc/elasticsearch/elasticsearch-ca.crt:
+  file:
+    - managed
+    - user: root
+    - group: root
+    - mode: 444
+    - contents_pillar: elasticsearch:encryption:ca_cert
+
+export-p12:
+  cmd:
+    - run
+    - user: root
+    - name: '/usr/java/latest/bin/keytool -importkeystore -srckeystore /etc/elasticsearch/elasticsearch.keystore -srcstorepass elasticsearch -srcalias {{ grains.id }} -destkeystore /etc/elasticsearch/elasticsearch.p12 -deststoretype PKCS12 -deststorepass elasticsearch'
+
+export-pem:
+  cmd:
+    - run
+    - user: root
+    - name: 'printf "elasticsearch\n" | openssl pkcs12 -in /etc/elasticsearch/elasticsearch.p12 -nodes -nocerts -out /etc/elasticsearch/elasticsearch.pem'
+    - require:
+      - cmd: export-p12
+
+chown-pem:
+  cmd:
+    - run
+    - user: root
+    - name: chown kibana:kibana /etc/elasticsearch/elasticsearch.pem && chmod 400 /etc/elasticsearch/elasticsearch.pem
+    - require:
+      - cmd: export-pem
+      - file: /etc/elasticsearch/elasticsearch-ca.crt
+    - require_in:
+      - service: kibana-svc
+{% endif %}
+
 
 kibana:
   pkg:
@@ -74,6 +109,9 @@ install_marvel:
   - name: '/opt/kibana/bin/kibana plugin --install elasticsearch/marvel/{{ marvel_version }}'
   - require:
     - pkg: kibana
+    {% if pillar.elasticsearch.encrypted %}
+    - cmd: chown-pem
+    {% endif %}
   - require_in:
     - service: kibana-svc
     - file: /opt/kibana/optimize/.babelcache.json
@@ -88,6 +126,9 @@ install_sense:
   - name: '/opt/kibana/bin/kibana plugin --install elastic/sense'
   - require:
     - pkg: kibana
+    {% if pillar.elasticsearch.encrypted %}
+    - cmd: chown-pem
+    {% endif %}
   - require_in:
     - service: kibana-svc
     - file: /opt/kibana/optimize/.babelcache.json
