@@ -71,6 +71,14 @@ export-pem:
     - require:
       - cmd: export-p12
 
+# We don't need the p12, it's just an intermediate file
+delete-p12:
+  file:
+    - absent
+    - name: /etc/elasticsearch/elasticsearch.p12
+    - require:
+      - cmd: export-pem
+
 chown-pem:
   cmd:
     - run
