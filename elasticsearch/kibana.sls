@@ -87,6 +87,7 @@ chown-pem:
     - require:
       - cmd: export-pem
       - file: /etc/elasticsearch/elasticsearch-ca.crt
+      - pkg: kibana
     - require_in:
       - service: kibana-svc
 {% endif %}
