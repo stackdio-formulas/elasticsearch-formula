@@ -1,12 +1,13 @@
 {%- set local = 'elasticsearch.client' in grains.roles or 'elasticsearch.master' in grains.roles or 'elasticsearch.data' in grains.roles -%}
 {%- set client_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.client', 'grains.items', 'compound').values() -%}
 {%- if local -%}
-  {%- set es_host = 'localhost' -%}
-{%- elif client_nodes -%}
+  {%- set es_host = grains.fqdn -%}
+{%- endif -%}
+{%- if client_nodes -%}
   {%- set es_host = client_nodes[0].fqdn -%}
 {%- else -%}
-  {%- set master_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.master', 'grains.items', 'compound').values() -%}
-  {%- set es_host = master_nodes[0].fqdn -%}
+  {%- set data_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data', 'grains.items', 'compound').values() -%}
+  {%- set es_host = data_nodes[0].fqdn -%}
 {%- endif -%}
 {%- set shield = salt['pillar.get']('elasticsearch:encrypted', False) -%}
 # Kibana is served by a back end server. This controls which port to use.
@@ -42,22 +43,21 @@ elasticsearch.username: "synthesys"
 elasticsearch.password: "123456"
 
 # SSL for outgoing requests from the Kibana Server to the browser (PEM formatted)
-server.ssl.cert: /etc/elasticsearch/server.crt
-server.ssl.key: /etc/elasticsearch/server.key
+server.ssl.cert: /etc/elasticsearch/elasticsearch.crt
+server.ssl.key: /etc/elasticsearch/elasticsearch.pem
 
 # Optional setting to validate that your Elasticsearch backend uses the same key files (PEM formatted)
-elasticsearch.ssl.cert: /etc/elasticsearch/server.crt
-elasticsearch.ssl.key: /etc/elasticsearch/server.key
+elasticsearch.ssl.cert: /etc/elasticsearch/elasticsearch.crt
+elasticsearch.ssl.key: /etc/elasticsearch/elasticsearch.pem
 
 # If you need to provide a CA certificate for your Elasticsearch instance, put
 # the path of the pem file here.
-# elasticsearch.ssl.ca: /path/to/your/CA.pem
+elasticsearch.ssl.ca: /etc/elasticsearch/elasticsearch-ca.crt
 
 # Set to false to have a complete disregard for the validity of the SSL
 # certificate.
 
-# TODO this doesn't work when it's true, so I'm leaving it as false for now
-elasticsearch.ssl.verify: false
+elasticsearch.ssl.verify: true
 {% endif %}
 
 # Time in milliseconds to wait for elasticsearch to respond to pings, defaults to

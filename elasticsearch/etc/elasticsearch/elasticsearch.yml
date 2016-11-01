@@ -86,6 +86,8 @@ shield.transport.ssl: true
 shield.ssl.keystore.path: /etc/elasticsearch/elasticsearch.keystore
 shield.ssl.keystore.password: elasticsearch
 shield.ssl.keystore.key_password: elasticsearch
+shield.ssl.truststore.path: /etc/elasticsearch/elasticsearch.truststore
+shield.ssl.truststore.password: elasticsearch
 {% endif %}
 
 index:
