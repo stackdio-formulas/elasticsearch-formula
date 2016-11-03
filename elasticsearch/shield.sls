@@ -139,7 +139,7 @@ create-keystore:
     - user: root
     - group: root
     - force: true
-    - mode: 600
+    - mode: {% if 'elasticsearch.config_only' in grains.roles %}644{% else %}600{% endif %}
     - require:
       - cmd: create-truststore
 
