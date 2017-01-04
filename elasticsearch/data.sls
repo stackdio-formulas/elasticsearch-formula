@@ -6,6 +6,9 @@ include:
 {% if salt['pillar.get']('elasticsearch:encrypted', False) %}
   - elasticsearch.shield
 {% endif %}
+{% if salt['pillar.get']('elasticsearch:aws:install', False) %}
+  - elasticsearch.aws_plugin
+{% endif %}
 
 start_elasticsearch:
   service:
