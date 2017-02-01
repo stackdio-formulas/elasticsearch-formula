@@ -81,13 +81,28 @@ marvel.agent.enabled: false
 
 {% if shield %}
 # Shield settings
-shield.http.ssl: true
-shield.transport.ssl: true
-shield.ssl.keystore.path: /etc/elasticsearch/elasticsearch.keystore
-shield.ssl.keystore.password: elasticsearch
-shield.ssl.keystore.key_password: elasticsearch
-shield.ssl.truststore.path: /etc/elasticsearch/elasticsearch.truststore
-shield.ssl.truststore.password: elasticsearch
+shield:
+  http.ssl: true
+  transport.ssl: true
+  ssl:
+    keystore:
+      path: /etc/elasticsearch/elasticsearch.keystore
+      password: elasticsearch
+      key_password: elasticsearch
+    truststore:
+      path: /etc/elasticsearch/elasticsearch.truststore
+      password: elasticsearch
+  authc:
+    realms:
+      native:
+        type: native
+        order: 0
+      file:
+        type: file
+        order: 1
+      pki1:
+        type: pki
+        order: 2
 {% endif %}
 
 index:
