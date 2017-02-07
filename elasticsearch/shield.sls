@@ -207,3 +207,5 @@ role-mapping:
     - mode: 644
     - require:
       - cmd: copy_shield_config
+    - watch_in:
+      - service: start_elasticsearch
