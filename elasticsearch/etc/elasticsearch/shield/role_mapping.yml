@@ -13,6 +13,7 @@
 #  - "cn=admins,dc=example,dc=com"
 #  - "cn=John Doe,cn=other users,dc=example,dc=com"
 
+# Give all the config_only nodes admin access
 {% set client_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.config_only', 'grains.items', 'compound').keys() %}
 admin:
   {% for node_id in client_nodes -%}
