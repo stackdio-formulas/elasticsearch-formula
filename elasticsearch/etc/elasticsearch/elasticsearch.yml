@@ -102,6 +102,7 @@ shield:
         order: 1
       pki1:
         type: pki
+        username_pattern: "DNSName=(.*?)(?:,|$)"
         order: 2
 {% endif %}
 
