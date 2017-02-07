@@ -195,3 +195,15 @@ remove-ca:
     - require:
       - cmd: create-truststore
       - cmd: import-signed-crt
+
+role-mapping:
+  file:
+    - managed
+    - name: /etc/elasticsearch/shield/role_mapping.yml
+    - source: salt://elasticsearch/etc/elasticsearch/shield/role_mapping.yml
+    - template: jinja
+    - user: root
+    - group: root
+    - mode: 644
+    - require:
+      - cmd: copy_shield_config
