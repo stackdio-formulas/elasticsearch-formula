@@ -83,7 +83,9 @@ marvel.agent.enabled: false
 # Shield settings
 shield:
   http.ssl: true
+  http.ssl.client.auth: optional
   transport.ssl: true
+  transport.ssl.client.auth: required
   ssl:
     keystore:
       path: /etc/elasticsearch/elasticsearch.keystore
