@@ -9,6 +9,7 @@
   {%- set es_host = data_nodes[0].fqdn -%}
 {%- endif -%}
 {%- set shield = salt['pillar.get']('elasticsearch:encrypted', False) -%}
+{%- set sense = salt['pillar.get']('elasticsearch:kibana:sense', True) -%}
 # Kibana is served by a back end server. This controls which port to use.
 # server.port: 5601
 
@@ -51,6 +52,16 @@ elasticsearch.ssl.ca: /etc/elasticsearch/elasticsearch-ca.crt
 # certificate.
 
 elasticsearch.ssl.verify: true
+{% endif %}
+
+{% if sense %}
+sense.defaultServerUrl: "http{% if shield %}s{% endif %}://{{ es_host }}:{{ pillar.elasticsearch.http_port }}"
+
+sense.proxyConfig:
+  - match:
+      protocol: https
+    ssl:
+      ca: /etc/elasticsearch/elasticsearch-ca.crt
 {% endif %}
 
 # Time in milliseconds to wait for elasticsearch to respond to pings, defaults to
