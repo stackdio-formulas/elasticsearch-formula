@@ -15,7 +15,11 @@
 
 # Give all the config_only nodes admin access
 {% set client_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.config_only', 'grains.items', 'compound').values() %}
+{% set kibana_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.kibana', 'grains.items', 'compound').values() %}
 admin:
   {% for node in client_nodes -%}
+  - "CN=Elasticsearch {{ node.id }},OU=Unknown,O=Elasticsearch,L=US,ST=US,C=US"
+  {% endfor %}
+  {% for node in kibana_nodes -%}
   - "CN=Elasticsearch {{ node.id }},OU=Unknown,O=Elasticsearch,L=US,ST=US,C=US"
   {% endfor %}
