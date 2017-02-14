@@ -57,39 +57,60 @@ import_repo_key:
     - mode: 444
     - contents_pillar: elasticsearch:encryption:ca_cert
 
-export-p12:
-  cmd:
-    - run
-    - user: root
-    - name: '/usr/java/latest/bin/keytool -importkeystore -srckeystore /etc/elasticsearch/elasticsearch.keystore -srcstorepass elasticsearch -srcalias {{ grains.id }} -destkeystore /etc/elasticsearch/elasticsearch.p12 -deststoretype PKCS12 -deststorepass elasticsearch'
-
-export-pem:
-  cmd:
-    - run
-    - user: root
-    - name: 'printf "elasticsearch\n" | openssl pkcs12 -in /etc/elasticsearch/elasticsearch.p12 -nodes -nocerts -out /etc/elasticsearch/elasticsearch.pem'
-    - require:
-      - cmd: export-p12
-
-# We don't need the p12, it's just an intermediate file
-delete-p12:
+/etc/elasticsearch/elasticsearch-ca.key:
   file:
-    - absent
-    - name: /etc/elasticsearch/elasticsearch.p12
+    - managed
+    - user: root
+    - group: root
+    - mode: 444
+    - contents_pillar: elasticsearch:encryption:ca_key
+
+generate-key:
+  cmd:
+    - run
+    - user: root
+    - name: 'openssl genrsa -out /etc/elasticsearch/kibana.key 2048'
+
+generate-csr:
+  cmd:
+    - run
+    - user: root
+    - name: 'openssl req -new -key /etc/elasticsearch/kibana.key -out /etc/elasticsearch/kibana.csr -subj "/C=US/ST=US/L=US/O=Elasticsearch/OU=Unknown/CN=Kibana {{ grains.id }}"'
     - require:
-      - cmd: export-pem
+      - cmd: generate-key
+
+generate-cert:
+  cmd:
+    - run
+    - user: root
+    - name: 'printf "{{ pillar.elasticsearch.encryption.ca_key_pass }}\n" | openssl x509 -req -in /etc/elasticsearch/kibana.csr -CA /etc/elasticsearch/elasticsearch-ca.crt -CAkey /etc/elasticsearch/elasticsearch-ca.key -CAcreateserial -out /etc/elasticsearch/kibana.crt -days 1000 -sha256'
+    - require:
+      - cmd: generate-csr
+      - file: /etc/elasticsearch/elasticsearch-ca.crt
+      - file: /etc/elasticsearch/elasticsearch-ca.key
 
 chown-pem:
   cmd:
     - run
     - user: root
-    - name: chown kibana:kibana /etc/elasticsearch/elasticsearch.pem && chmod 400 /etc/elasticsearch/elasticsearch.pem
+    - name: chown kibana:kibana /etc/elasticsearch/kibana.key && chmod 400 /etc/elasticsearch/kibana.key
     - require:
-      - cmd: export-pem
-      - file: /etc/elasticsearch/elasticsearch-ca.crt
+      - cmd: generate-key
+      - cmd: generate-cert
       - pkg: kibana
     - require_in:
       - service: kibana-svc
+
+{% for file in ['/etc/elasticsearch/elasticsearch-ca.srl', '/etc/elasticsearch/elasticsearch-ca.key'] %}
+delete-{{ file }}:
+  cmd:
+    - run
+    - user: root
+    - name 'rm -f {{ file }}'
+    - require:
+      - cmd: generate-cert
+{% endfor %}
+
 {% endif %}
 
 

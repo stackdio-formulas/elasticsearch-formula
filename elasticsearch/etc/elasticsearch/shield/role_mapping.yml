@@ -20,6 +20,8 @@ admin:
   {% for node in client_nodes -%}
   - "CN=Elasticsearch {{ node.id }},OU=Unknown,O=Elasticsearch,L=US,ST=US,C=US"
   {% endfor %}
+
+kibana4_server:
   {% for node in kibana_nodes -%}
-  - "CN=Elasticsearch {{ node.id }},OU=Unknown,O=Elasticsearch,L=US,ST=US,C=US"
+  - "CN=Kibana {{ node.id }},OU=Unknown,O=Elasticsearch,L=US,ST=US,C=US"
   {% endfor %}
