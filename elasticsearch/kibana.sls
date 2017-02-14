@@ -106,7 +106,7 @@ delete-{{ file }}:
   cmd:
     - run
     - user: root
-    - name 'rm -f {{ file }}'
+    - name: 'rm -f {{ file }}'
     - require:
       - cmd: generate-cert
 {% endfor %}
