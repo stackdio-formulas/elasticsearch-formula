@@ -36,12 +36,12 @@ elasticsearch.url: "http{% if shield %}s{% endif %}://{{ es_host }}:{{ pillar.el
 {% if shield %}
 
 # SSL for outgoing requests from the Kibana Server to the browser (PEM formatted)
-server.ssl.cert: /etc/elasticsearch/elasticsearch.crt
-server.ssl.key: /etc/elasticsearch/elasticsearch.pem
+server.ssl.cert: /etc/elasticsearch/kibana.crt
+server.ssl.key: /etc/elasticsearch/kibana.key
 
 # Optional setting to validate that your Elasticsearch backend uses the same key files (PEM formatted)
-elasticsearch.ssl.cert: /etc/elasticsearch/elasticsearch.crt
-elasticsearch.ssl.key: /etc/elasticsearch/elasticsearch.pem
+elasticsearch.ssl.cert: /etc/elasticsearch/kibana.crt
+elasticsearch.ssl.key: /etc/elasticsearch/kibana.key
 
 # If you need to provide a CA certificate for your Elasticsearch instance, put
 # the path of the pem file here.
