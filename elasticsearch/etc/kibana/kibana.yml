@@ -2,8 +2,7 @@
 {%- set client_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.client', 'grains.items', 'compound').values() -%}
 {%- if local -%}
   {%- set es_host = grains.fqdn -%}
-{%- endif -%}
-{%- if client_nodes -%}
+{%- elif client_nodes -%}
   {%- set es_host = client_nodes[0].fqdn -%}
 {%- else -%}
   {%- set data_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data', 'grains.items', 'compound').values() -%}
