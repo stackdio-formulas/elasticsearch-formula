@@ -18,10 +18,10 @@
 {% set kibana_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.kibana', 'grains.items', 'compound').values() %}
 admin:
   {% for node in client_nodes -%}
-  - "CN=Elasticsearch {{ node.id }},OU=Unknown,O=Elasticsearch,L=US,ST=US,C=US"
+  - "CN={{ node.fqdn }},OU=Elasticsearch,O=Elasticsearch,L=US,ST=US,C=US"
   {% endfor %}
 
 kibana4_server:
   {% for node in kibana_nodes -%}
-  - "CN=Kibana {{ node.id }},OU=Unknown,O=Elasticsearch,L=US,ST=US,C=US"
+  - "CN={{ node.fqdn }},OU=Kibana,O=Elasticsearch,L=US,ST=US,C=US"
   {% endfor %}

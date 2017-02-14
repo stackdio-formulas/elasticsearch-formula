@@ -75,7 +75,7 @@ generate-csr:
   cmd:
     - run
     - user: root
-    - name: 'openssl req -new -key /etc/elasticsearch/kibana.key -out /etc/elasticsearch/kibana.csr -subj "/C=US/ST=US/L=US/O=Elasticsearch/OU=Unknown/CN=Kibana {{ grains.id }}"'
+    - name: 'openssl req -new -key /etc/elasticsearch/kibana.key -out /etc/elasticsearch/kibana.csr -subj "/C=US/ST=US/L=US/O=Elasticsearch/OU=Kibana/CN={{ grains.fqdn }}"'
     - require:
       - cmd: generate-key
 

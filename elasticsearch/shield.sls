@@ -147,7 +147,7 @@ create-key:
   cmd:
     - run
     - user: root
-    - name: 'printf "Elasticsearch {{ grains.id }}\n\nElasticsearch\nUS\nUS\nUS\nyes\n" | /usr/java/latest/bin/keytool -genkey -alias {{ grains.id }} -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch -keyalg RSA -keysize 2048 -validity 8000 -ext san=dns:{{ grains.fqdn }}'
+    - name: 'printf "{{ grains.fqdn }}\nElasticsearch\nElasticsearch\nUS\nUS\nUS\nyes\n" | /usr/java/latest/bin/keytool -genkey -alias {{ grains.id }} -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch -keyalg RSA -keysize 2048 -validity 8000 -ext san=dns:{{ grains.fqdn }}'
     - require:
       - file: create-keystore
 
