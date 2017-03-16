@@ -57,11 +57,14 @@ elasticsearch.ssl.verify: true
 {% if sense %}
 sense.defaultServerUrl: "http{% if shield %}s{% endif %}://{{ es_host }}:{{ pillar.elasticsearch.http_port }}"
 
+{% if shield %}
 sense.proxyConfig:
   - match:
       protocol: https
     ssl:
       ca: /etc/elasticsearch/elasticsearch-ca.crt
+{% endif %}
+
 {% endif %}
 
 # Time in milliseconds to wait for elasticsearch to respond to pings, defaults to
