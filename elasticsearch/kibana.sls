@@ -177,6 +177,7 @@ kibana-svc:
   service:
     - running
     - name: kibana
+    - enable: true
     - require:
       - pkg: kibana
       - file: /opt/kibana/optimize/.babelcache.json

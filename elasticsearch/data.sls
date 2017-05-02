@@ -14,7 +14,7 @@ start_elasticsearch:
   service:
     - running
     - name: elasticsearch
-    - enable: True
+    - enable: true
     - require:
       - pkg: elasticsearch
     - watch:

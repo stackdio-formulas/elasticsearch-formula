@@ -21,7 +21,7 @@ start_elasticsearch:
   service:
     - dead
     - name: elasticsearch
-    - enable: False
+    - enable: false
     - require:
       - pkg: elasticsearch
     - watch:
