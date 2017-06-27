@@ -147,7 +147,7 @@ create-key:
   cmd:
     - run
     - user: root
-    - name: 'printf "{{ grains.fqdn }}\nElasticsearch\nElasticsearch\nUS\nUS\nUS\nyes\n" | /usr/java/latest/bin/keytool -genkey -alias {{ grains.id }} -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch -keyalg RSA -keysize 2048 -validity 8000 -ext san=dns:{{ grains.fqdn }}'
+    - name: 'printf "{{ grains.fqdn }}\nElasticsearch\nElasticsearch\nUS\nUS\nUS\nyes\n" | /usr/java/latest/bin/keytool -genkey -alias {{ grains.id }} -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch -keyalg RSA -keysize 2048 -validity 8000 -ext san=dns:{{ grains.fqdn }} -ext san=dns:{{ grains['ipv4'][0] }}'
     - require:
       - file: create-keystore
 
@@ -155,7 +155,7 @@ create-csr:
   cmd:
     - run
     - user: root
-    - name: '/usr/java/latest/bin/keytool -certreq -alias {{ grains.id }} -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch -file /etc/elasticsearch/elasticsearch.csr -keyalg rsa -ext san=dns:{{ grains.fqdn }}'
+    - name: '/usr/java/latest/bin/keytool -certreq -alias {{ grains.id }} -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch -file /etc/elasticsearch/elasticsearch.csr -keyalg rsa -ext san=dns:{{ grains.fqdn }} -ext san=dns:{{ grains['ipv4'][0] }}'
     - require:
       - cmd: create-key
 
