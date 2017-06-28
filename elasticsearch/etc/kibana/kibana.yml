@@ -36,6 +36,12 @@ elasticsearch.url: "http{% if shield %}s{% endif %}://{{ es_host }}:{{ pillar.el
 
 {% if shield %}
 
+# Configure shield
+shield.encryptionKey: {{ salt['random.get_str'](40) }}
+
+elasticsearch.username: 'kibana-server'
+elasticsearch.password: '123456'
+
 # SSL for outgoing requests from the Kibana Server to the browser (PEM formatted)
 server.ssl.cert: /etc/elasticsearch/kibana.crt
 server.ssl.key: /etc/elasticsearch/kibana.key
