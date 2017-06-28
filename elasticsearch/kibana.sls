@@ -1,4 +1,5 @@
 {% set kibana_version = pillar.elasticsearch.kibana.version %}
+{%- set shield = salt['pillar.get']('elasticsearch:encrypted', False) -%}
 
 {% if grains['os_family'] == 'RedHat' %}
 # Centos
@@ -128,6 +129,23 @@ kibana:
     - mode: 644
     - require:
       - pkg: kibana
+
+{% if shield %}
+install_shield:
+  cmd:
+  - run
+  - user: root
+  - name: '/opt/kibana/bin/kibana plugin --install kibana/shield/latest'
+  - require:
+    - pkg: kibana
+    {% if pillar.elasticsearch.encrypted %}
+    - cmd: chown-pem
+    {% endif %}
+  - require_in:
+    - service: kibana-svc
+    - file: /opt/kibana/optimize/.babelcache.json
+  - unless: 'test -d /opt/kibana/installedPlugins/shield'
+{% endif %}
 
 {% if salt['pillar.get']('elasticsearch:marvel:install', True) %}
 
