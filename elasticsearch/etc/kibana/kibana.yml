@@ -43,16 +43,16 @@ elasticsearch.username: 'kibana-server'
 elasticsearch.password: '123456'
 
 # SSL for outgoing requests from the Kibana Server to the browser (PEM formatted)
-server.ssl.cert: /etc/elasticsearch/kibana.crt
-server.ssl.key: /etc/elasticsearch/kibana.key
+server.ssl.cert: /opt/kibana/config/kibana.crt
+server.ssl.key: /opt/kibana/config/kibana.key
 
 # Optional setting to validate that your Elasticsearch backend uses the same key files (PEM formatted)
-elasticsearch.ssl.cert: /etc/elasticsearch/kibana.crt
-elasticsearch.ssl.key: /etc/elasticsearch/kibana.key
+elasticsearch.ssl.cert: /opt/kibana/config/kibana.crt
+elasticsearch.ssl.key: /opt/kibana/config/kibana.key
 
 # If you need to provide a CA certificate for your Elasticsearch instance, put
 # the path of the pem file here.
-elasticsearch.ssl.ca: /etc/elasticsearch/elasticsearch-ca.crt
+elasticsearch.ssl.ca: /opt/kibana/config/ca.crt
 
 # Set to false to have a complete disregard for the validity of the SSL
 # certificate.
@@ -68,7 +68,7 @@ sense.proxyConfig:
   - match:
       protocol: https
     ssl:
-      ca: /etc/elasticsearch/elasticsearch-ca.crt
+      ca: /opt/kibana/config/ca.crt
 {% endif %}
 
 {% endif %}

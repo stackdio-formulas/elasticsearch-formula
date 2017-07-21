@@ -49,75 +49,49 @@ import_repo_key:
       - pkg: kibana
 {% endif %}
 
-{% if pillar.elasticsearch.encrypted %}
-/etc/elasticsearch/elasticsearch-ca.crt:
-  file:
-    - managed
-    - user: root
-    - group: root
-    - mode: 444
-    - contents_pillar: elasticsearch:encryption:ca_cert
-
-/etc/elasticsearch/elasticsearch-ca.key:
-  file:
-    - managed
-    - user: root
-    - group: root
-    - mode: 444
-    - contents_pillar: elasticsearch:encryption:ca_key
-
-generate-key:
-  cmd:
-    - run
-    - user: root
-    - name: 'openssl genrsa -out /etc/elasticsearch/kibana.key 2048'
-
-generate-csr:
-  cmd:
-    - run
-    - user: root
-    - name: 'openssl req -new -key /etc/elasticsearch/kibana.key -out /etc/elasticsearch/kibana.csr -subj "/C=US/ST=US/L=US/O=Elasticsearch/OU=Kibana/CN={{ grains.fqdn }}"'
-    - require:
-      - cmd: generate-key
-
-generate-cert:
-  cmd:
-    - run
-    - user: root
-    - name: 'printf "{{ pillar.elasticsearch.encryption.ca_key_pass }}\n" | openssl x509 -req -in /etc/elasticsearch/kibana.csr -CA /etc/elasticsearch/elasticsearch-ca.crt -CAkey /etc/elasticsearch/elasticsearch-ca.key -CAcreateserial -out /etc/elasticsearch/kibana.crt -days 1000 -sha256'
-    - require:
-      - cmd: generate-csr
-      - file: /etc/elasticsearch/elasticsearch-ca.crt
-      - file: /etc/elasticsearch/elasticsearch-ca.key
-
-chown-pem:
-  cmd:
-    - run
-    - user: root
-    - name: chown kibana:kibana /etc/elasticsearch/kibana.key && chmod 400 /etc/elasticsearch/kibana.key
-    - require:
-      - cmd: generate-key
-      - cmd: generate-cert
-      - pkg: kibana
-    - require_in:
-      - service: kibana-svc
-
-{% for file in ['/etc/elasticsearch/elasticsearch-ca.srl', '/etc/elasticsearch/elasticsearch-ca.key'] %}
-delete-{{ file }}:
-  cmd:
-    - run
-    - user: root
-    - name: 'rm -f {{ file }}'
-    - require:
-      - cmd: generate-cert
-{% endfor %}
-
-{% endif %}
-
 
 kibana:
   pkg:
     - installed
+
+{% if pillar.elasticsearch.encrypted %}
+/opt/kibana/config/kibana.key:
+  file:
+    - managed
+    - user: kibana
+    - group: kibana
+    - mode: 400
+    - contents_pillar: ssl:private_key
+    - require:
+      - pkg: kibana
+    - require_in:
+      - pkg: kibana-svc
+
+/opt/kibana/config/kibana.crt:
+  file:
+    - managed
+    - user: kibana
+    - group: kibana
+    - mode: 444
+    - contents_pillar: ssl:chained_certificate
+    - require:
+      - pkg: kibana
+    - require_in:
+      - pkg: kibana-svc
+
+/opt/kibana/config/ca.crt:
+  file:
+    - managed
+    - user: kibana
+    - group: kibana
+    - mode: 444
+    - contents_pillar: ssl:ca_certificate
+    - require:
+      - pkg: kibana
+    - require_in:
+      - pkg: kibana-svc
+
+{% endif %}
 
 /opt/kibana/config/kibana.yml:
   file:
@@ -138,9 +112,6 @@ install_shield:
   - name: '/opt/kibana/bin/kibana plugin --install kibana/shield/latest'
   - require:
     - pkg: kibana
-    {% if pillar.elasticsearch.encrypted %}
-    - cmd: chown-pem
-    {% endif %}
   - require_in:
     - service: kibana-svc
     - file: /opt/kibana/optimize/.babelcache.json
@@ -157,9 +128,6 @@ install_marvel:
   - name: '/opt/kibana/bin/kibana plugin --install elasticsearch/marvel/{{ marvel_version }}'
   - require:
     - pkg: kibana
-    {% if pillar.elasticsearch.encrypted %}
-    - cmd: chown-pem
-    {% endif %}
   - require_in:
     - service: kibana-svc
     - file: /opt/kibana/optimize/.babelcache.json
@@ -174,9 +142,6 @@ install_sense:
   - name: '/opt/kibana/bin/kibana plugin --install elastic/sense'
   - require:
     - pkg: kibana
-    {% if pillar.elasticsearch.encrypted %}
-    - cmd: chown-pem
-    {% endif %}
   - require_in:
     - service: kibana-svc
     - file: /opt/kibana/optimize/.babelcache.json
