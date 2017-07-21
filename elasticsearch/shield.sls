@@ -176,6 +176,7 @@ chown-keystore:
     - name: chown elasticsearch:elasticsearch /etc/elasticsearch/elasticsearch.keystore
     - require:
       - cmd: create-keystore
+      - cmd: chmod-keystore
     - require_in:
       - service: start_elasticsearch
 
