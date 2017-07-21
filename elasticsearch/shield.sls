@@ -92,8 +92,8 @@ copy_shield_config:
 /etc/elasticsearch/elasticsearch.key:
   file:
     - managed
-    - user: elasticsearch
-    - group: elasticsearch
+    - user: root
+    - group: root
     - mode: 400
     - contents_pillar: ssl:private_key
 
@@ -130,7 +130,7 @@ copy_shield_config:
 create-pkcs12:
   cmd:
     - run
-    - user: elasticsearch
+    - user: root
     - name: openssl pkcs12 -export -in /etc/elasticsearch/elasticsearch.crt -certfile /etc/elasticsearch/chained.crt -inkey /etc/elasticsearch/elasticsearch.key -out /etc/elasticsearch/elasticsearch.pkcs12 -name {{ grains.id }} -password pass:elasticsearch
     - require:
       - file: /etc/elasticsearch/chained.crt
@@ -140,7 +140,7 @@ create-pkcs12:
 create-truststore:
   cmd:
     - run
-    - user: elasticsearch
+    - user: root
     - name: /usr/java/latest/bin/keytool -importcert -keystore /etc/elasticsearch/elasticsearch.truststore -storepass elasticsearch -file /etc/elasticsearch/ca.crt -alias root-ca -noprompt
     - unless: /usr/java/latest/bin/keytool -list -keystore /etc/elasticsearch/elasticsearch.truststore -storepass elasticsearch | grep root-ca
     - require:
@@ -151,7 +151,7 @@ create-truststore:
 create-keystore:
   cmd:
     - run
-    - user: elasticsearch
+    - user: root
     - name: /usr/java/latest/bin/keytool -importkeystore -srckeystore /etc/elasticsearch/elasticsearch.pkcs12 -srcstorepass elasticsearch -srcstoretype pkcs12 -destkeystore /etc/elasticsearch/elasticsearch.keystore -deststorepass elasticsearch
     - unless: /usr/java/latest/bin/keytool -list -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch | grep {{ grains.id }}
     - require:
@@ -162,10 +162,22 @@ create-keystore:
 chmod-keystore:
   cmd:
     - run
-    - user:
+    - user: root
     - name: chmod {% if 'elasticsearch.config_only' in grains.roles %}444{% else %}400{% endif %} /etc/elasticsearch/elasticsearch.keystore
     - require:
       - cmd: create-keystore
+    - require_in:
+      - service: start_elasticsearch
+
+chown-keystore:
+  cmd:
+    - run
+    - user: root
+    - name: chown elasticsearch:elasticsearch /etc/elasticsearch/elasticsearch.keystore
+    - require:
+      - cmd: create-keystore
+    - require_in:
+      - service: start_elasticsearch
 
 role-mapping:
   file:
