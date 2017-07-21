@@ -1,4 +1,5 @@
 {% set kibana_version = pillar.elasticsearch.kibana.version %}
+{% set es_version = pillar.elasticsearch.version %}
 {%- set shield = salt['pillar.get']('elasticsearch:encrypted', False) -%}
 
 {% if grains['os_family'] == 'RedHat' %}
@@ -109,7 +110,7 @@ install_shield:
   cmd:
   - run
   - user: root
-  - name: '/opt/kibana/bin/kibana plugin --install kibana/shield/latest'
+  - name: '/opt/kibana/bin/kibana plugin --install kibana/shield/{{ es_version }}'
   - require:
     - pkg: kibana
   - require_in:
