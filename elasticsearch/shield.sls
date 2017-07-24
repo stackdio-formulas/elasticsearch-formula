@@ -94,7 +94,7 @@ copy_shield_config:
     - managed
     - user: root
     - group: root
-    - mode: 400
+    - mode: {% if 'elasticsearch.config_only' in grains.roles %}444{% else %}400{% endif %}
     - contents_pillar: ssl:private_key
 
 /etc/elasticsearch/elasticsearch.crt:
