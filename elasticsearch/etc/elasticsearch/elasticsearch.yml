@@ -38,7 +38,7 @@ node.data: {{ data | lower }}
 node.client: {{ client | lower }}
 
 # Network settings
-network.host: 0.0.0.0
+network.host: {{ grains.fqdn }}
 http.port: {{ pillar.elasticsearch.http_port }}
 transport.tcp.port: {{ pillar.elasticsearch.tcp_port }}
 
