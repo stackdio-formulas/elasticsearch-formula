@@ -39,6 +39,9 @@ elasticsearch.url: "http{% if shield %}s{% endif %}://{{ es_host }}:{{ pillar.el
 # Configure shield
 shield.encryptionKey: {{ salt['random.get_str'](40) }}
 
+# 8 hours
+shield.sessionTimeout: 28800000
+
 elasticsearch.username: 'kibana-server'
 elasticsearch.password: '123456'
 
