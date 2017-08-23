@@ -1,9 +1,0 @@
-{%- set spl = pillar.elasticsearch.version.split('.') -%}
-{%- set major = spl[0] | int -%}
-{%- set minor = spl[1] | int -%}
-{%- if major >= 2 -%}
-  {%- set es_version = major ~ '.x' -%}
-{%- else -%}
-  {%- set es_version = major ~ '.' ~ minor -%}
-{%- endif -%}
-deb http://packages.elastic.co/elasticsearch/{{ es_version }}/debian stable main

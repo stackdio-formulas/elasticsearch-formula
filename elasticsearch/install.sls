@@ -1,59 +1,16 @@
 {%- set config_only = 'elasticsearch.config_only' in grains.roles -%}
 {%- set es_version = pillar.elasticsearch.version -%}
 
-{% if grains['os_family'] == 'RedHat' %}
-# Centos
-
-import_repo_key:
-  cmd:
-  - run
-  - name: 'rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch'
-  - unless: 'rpm -qa | grep elasticsearch'
-
-/etc/yum.repos.d/elasticsearch.repo:
-  file:
-    - managed
-    - mkdirs: false
-    - source: salt://elasticsearch/etc/yum.repos.d/elasticsearch.repo
-    - template: jinja
-    - user: root
-    - group: root
-    - mode: 644
-    - require:
-      - cmd: import_repo_key
-    - require_in:
-      - pkg: elasticsearch
-
-{% elif grains['os_family'] == 'Debian' %}
-# Ubuntu
-
-import_repo_key:
-  cmd:
-  - run
-  - user: root
-  - name: 'curl https://packages.elastic.co/GPG-KEY-elasticsearch | apt-key add -'
-  - unless: 'apt-key list | grep Elasticsearch'
-
-/etc/apt/sources.list.d/elasticsearch.list:
-  file:
-    - managed
-    - mkdirs: false
-    - source: salt://elasticsearch/etc/apt/sources.list.d/elasticsearch.list
-    - template: jinja
-    - user: root
-    - group: root
-    - mode: 644
-    - require:
-      - cmd: import_repo_key
-    - require_in:
-      - pkg: elasticsearch
-{% endif %}
+include:
+  - elasticsearch.repo
 
 
 elasticsearch:
   pkg:
     - installed
     - version: {{ es_version }}-1
+    - require:
+      - file: elasticsearch-repo
 
 /etc/elasticsearch:
   file:
@@ -68,6 +25,8 @@ elasticsearch:
       - mode
     - require:
       - pkg: elasticsearch
+    - require_in:
+      - service: elasticsearch-svc
 
 /etc/elasticsearch/elasticsearch.yml:
   file:
@@ -81,6 +40,8 @@ elasticsearch:
     - require:
       - file: /etc/elasticsearch
       - pkg: elasticsearch
+    - watch_in:
+      - service: elasticsearch-svc
 
 elasticsearch_default_config:
   file:
@@ -97,6 +58,8 @@ elasticsearch_default_config:
     - mode: 644
     - require:
       - pkg: elasticsearch
+    - watch_in:
+      - service: elasticsearch-svc
 
 
 {% if not config_only %}
@@ -113,7 +76,7 @@ elasticsearch_default_config:
     - require:
       - pkg: elasticsearch
     - require_in:
-      - service: start_elasticsearch
+      - service: elasticsearch-svc
 
 {% endfor %}
 
@@ -123,9 +86,18 @@ elasticsearch_default_config:
     - text:
       - elasticsearch - memlock unlimited
       - root - memlock unlimited
+    - require_in:
+      - service: elasticsearch-svc
 
-/bin/sed 's/#LimitMEMLOCK=infinity/LimitMEMLOCK=infinity/' /usr/lib/systemd/system/elasticsearch.service:
-  cmd:
-    - run
+
+/usr/lib/systemd/system/elasticsearch.service:
+  file:
+    - replace
+    - pattern: '#LimitMEMLOCK=infinity'
+    - repl: 'LimitMEMLOCK=infinity'
+    - require:
+      - pkg: elasticsearch
+    - require_in:
+      - service: elasticsearch-svc
 
 {% endif %}

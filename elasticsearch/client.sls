@@ -3,12 +3,12 @@
 
 include:
   - elasticsearch.install
-{% if salt['pillar.get']('elasticsearch:marvel:install', True) %}
+  {% if salt['pillar.get']('elasticsearch:marvel:install', True) %}
   - elasticsearch.marvel
-{% endif %}
-{% if salt['pillar.get']('elasticsearch:encrypted', False) %}
+  {% endif %}
+  {% if salt['pillar.get']('elasticsearch:encrypted', False) %}
   - elasticsearch.shield
-{% endif %}
+  {% endif %}
 
 {% if master or data %}
 invalid_configuration:
@@ -19,13 +19,11 @@ invalid_configuration:
     - comment: "Please don't put a client on the same host as a master or data node"
 {% endif %}
 
-start_elasticsearch:
+
+elasticsearch-svc:
   service:
     - running
     - name: elasticsearch
     - enable: true
     - require:
       - pkg: elasticsearch
-    - watch:
-      - file: /etc/elasticsearch/elasticsearch.yml
-      - file: elasticsearch_default_config
