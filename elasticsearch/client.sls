@@ -3,12 +3,6 @@
 
 include:
   - elasticsearch.install
-  {% if salt['pillar.get']('elasticsearch:marvel:install', True) %}
-  - elasticsearch.marvel
-  {% endif %}
-  {% if salt['pillar.get']('elasticsearch:encrypted', False) %}
-  - elasticsearch.shield
-  {% endif %}
 
 {% if master or data %}
 invalid_configuration:

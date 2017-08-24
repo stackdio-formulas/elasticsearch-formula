@@ -4,6 +4,15 @@
 
 include:
   - elasticsearch.repo
+  {% if pillar.elasticsearch.marvel.install %}
+  - elasticsearch.marvel
+  {% endif %}
+  {% if pillar.elasticsearch.encrypted %}
+  - elasticsearch.shield
+  {% endif %}
+  {% if pillar.elasticsearch.aws.install %}
+  - elasticsearch.aws_plugin
+  {% endif %}
 
 
 elasticsearch:

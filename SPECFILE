@@ -42,7 +42,7 @@ pillar_defaults:
             sense: true
         # only for ES 2 (see x-pack for encryption on ES 5)
         encrypted: false
-        x-pack:
+        xpack:
             # Only valid in ES 5
             install: false
             # Enable everything by default

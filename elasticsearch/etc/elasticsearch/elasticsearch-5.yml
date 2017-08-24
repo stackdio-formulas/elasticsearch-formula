@@ -4,8 +4,6 @@
 {%- set master = 'elasticsearch.master' in grains.roles and not client -%}
 {%- set data = 'elasticsearch.data' in grains.roles and not client -%}
 
-{%- set shield = salt['pillar.get']('elasticsearch:encrypted', False) -%}
-
 {# the lists of master & data nodes should NOT include client nodes #}
 {%- set master_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.master and not G@roles:elasticsearch.client', 'grains.items', 'compound').values() -%}
 {%- set data_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data and not G@roles:elasticsearch.client', 'grains.items', 'compound').values() -%}
@@ -42,54 +40,55 @@ path.logs: /mnt/elasticsearch/logs
 # Disable the JVM from being swapped out
 bootstrap.memory_lock: true
 
-{%- if pillar.elasticsearch.marvel.install %}
-    {%- if pillar.elasticsearch.marvel.external_cluster %}
-        {%- if pillar.elasticsearch.version.split('.')[0] | int < 2 %}
-marvel.agent.exporter.es.hosts: ["{{ pillar.elasticsearch.marvel.external_cluster }}:{{ pillar.elasticsearch.http_port }}"]
-         {%- else %}
+{% if pillar.elasticsearch.marvel.install and pillar.elasticsearch.marvel.external_cluster %}
 marvel.agent.exporters:
   id1:
     type: http
     host: ["http://{{ pillar.elasticsearch.marvel.external_cluster }}:{{ pillar.elasticsearch.http_port }}"]
-         {%- endif %}
-    {%- endif %}
-{%- endif %}
+{% endif %}
 
-{%- if pillar.elasticsearch.marvel.is_external %}
+{% if pillar.elasticsearch.marvel.is_external %}
 marvel.agent.enabled: false
-{%- endif %}
+{% endif %}
 
-{% if shield %}
-# Shield settings
-shield:
-  http.ssl: true
-  http.ssl.client.auth: optional
-  transport.ssl: true
-  transport.ssl.client.auth: required
+{% if pillar.elasticsearch.xpack.install %}
+# X-Pack settings
+xpack:
   ssl:
-    keystore:
-      path: /etc/elasticsearch/elasticsearch.keystore
-      password: elasticsearch
-      key_password: elasticsearch
-    truststore:
-      path: /etc/elasticsearch/elasticsearch.truststore
-      password: elasticsearch
-  authc:
-    realms:
-      native:
-        type: native
-        order: 0
-      file:
-        type: file
-        order: 1
-      pki1:
-        type: pki
-        order: 2
+    key: /etc/elasticsearch/elasticsearch.key
+    certificate: /etc/elasticsearch/elasticsearch.crt
+    certificate_authorities: /etc/elasticsearch/ca.crt
+
+  graph.enabled: {{ pillar.elasticsearch.xpack.graph.enabled }}
+  ml.enabled: {{ pillar.elasticsearch.xpack.ml.enabled }}
+  monitoring.enabled: {{ pillar.elasticsearch.xpack.monitoring.enabled }}
+  reporting.enabled: {{ pillar.elasticsearch.xpack.reporting.enabled }}
+  watcher.enabled: {{ pillar.elasticsearch.xpack.watcher.enabled }}
+
+  security:
+    enabled: {{ pillar.elasticsearch.xpack.security.enabled }}
+    http.ssl:
+      enabled: true
+      client_authentication: optional
+    transport.ssl:
+      enabled: true
+      client_authentication: required
+    authc:
+      realms:
+        native:
+          type: native
+          order: 0
+        file:
+          type: file
+          order: 1
+        pki1:
+          type: pki
+          order: 2
 {% endif %}
 
 thread_pool.bulk.queue_size: 1000
 
-{%- if pillar.elasticsearch.aws.install %}
+{% if pillar.elasticsearch.aws.install %}
 cloud:
   node:
     auto_attributes: true
@@ -103,4 +102,4 @@ cloud:
 
 # Do routing based on the AZ
 cluster.routing.allocation.awareness.attributes: aws_availability_zone
-{%- endif %}
+{% endif %}

@@ -88,7 +88,7 @@ install_shield:
   - unless: 'test -d {{ kibana_plugins }}/shield'
 {% endif %}
 
-{% if salt['pillar.get']('elasticsearch:marvel:install', True) %}
+{% if pillar.elasticsearch.marvel.instal %}
 
 {% set marvel_version = salt['pillar.get']('elasticsearch:marvel:version', 'latest') %}
 install_marvel:

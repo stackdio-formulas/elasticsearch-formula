@@ -1,3 +1,16 @@
+
+{% set es_version = pillar.elasticsearch.version %}
+{% set es_major_version = es_version.split('.')[0] | int %}
+
+{% if es_major_version >= 5 %}
+invalid_configuration:
+  test:
+    - configurable_test_state
+    - changes: True
+    - result: False
+    - comment: "Shield doesn't exist on ES 5"
+{% endif %}
+
 {% set shield_config_dir = '/usr/share/elasticsearch/plugins/shield/config' %}
 
 install_license_shield:
