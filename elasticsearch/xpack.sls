@@ -11,9 +11,6 @@ invalid_configuration:
     - comment: "XPack doesn't exist on ES < 5"
 {% endif %}
 
-include:
-  - elasticsearch.ssl
-
 install-x-pack:
   cmd:
   - run

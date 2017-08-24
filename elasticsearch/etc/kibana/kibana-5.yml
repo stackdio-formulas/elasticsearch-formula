@@ -9,7 +9,6 @@
   {%- set es_host = data_nodes[0].fqdn -%}
 {%- endif -%}
 {%- set secure = pillar.elasticsearch.xpack.security.enabled -%}
-{%- set sense = salt['pillar.get']('elasticsearch:kibana:sense', True) -%}
 # Kibana is served by a back end server. This setting specifies the port to use.
 server.port: 5601
 
@@ -118,17 +117,3 @@ elasticsearch.ssl.verificationMode: full
 # The default locale. This locale can be used in certain circumstances to substitute any missing
 # translations.
 #i18n.defaultLocale: "en"
-
-{% if sense %}
-# Sense config
-sense.defaultServerUrl: "http{% if secure %}s{% endif %}://{{ es_host }}:{{ pillar.elasticsearch.http_port }}"
-
-{% if secure %}
-sense.proxyConfig:
-  - match:
-      protocol: https
-    ssl:
-      ca: /opt/kibana/config/ca.crt
-{% endif %}
-
-{% endif %}

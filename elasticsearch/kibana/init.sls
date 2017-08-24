@@ -74,7 +74,39 @@ kibana:
     - require:
       - pkg: kibana
 
+{% if pillar.elasticsearch.xpack.install %}
+########
+# X-Pack
+########
+
+{% if es_major_version < 5 %}
+invalid_configuration:
+  test:
+    - configurable_test_state
+    - changes: True
+    - result: False
+    - comment: "XPack doesn't exist on ES < 5"
+{% endif %}
+
+install-x-pack:
+  cmd:
+  - run
+  - user: root
+  - name: '/usr/share/kibana/bin/kibana-plugin install x-pack'
+  - require:
+    - pkg: kibana
+  - require_in:
+    - service: kibana-svc
+  - unless: '/usr/share/kibana/bin/kibana-plugin list | grep x-pack'
+
+{% endif %}
+
+
+
 {% if shield %}
+########
+# Shield
+########
 
 {% if es_major_version >= 5 %}
 invalid_configuration:
@@ -89,16 +121,21 @@ install_shield:
   cmd:
   - run
   - user: root
-  - name: '{{ kibana_home }}/bin/kibana plugin --install kibana/shield/{{ es_version }}'
+  - name: '/opt/kibana/bin/kibana plugin --install kibana/shield/{{ es_version }}'
   - require:
     - pkg: kibana
   - require_in:
     - service: kibana-svc
     - file: {{ kibana_home }}/optimize/.babelcache.json
-  - unless: 'test -d {{ kibana_plugins }}/shield'
+  - unless: 'test -d /opt/kibana/installedPlugins/shield'
 {% endif %}
 
+
+
 {% if pillar.elasticsearch.marvel.install %}
+########
+# Marvel
+########
 
 {% if es_major_version >= 5 %}
 invalid_configuration:
@@ -114,27 +151,43 @@ install_marvel:
   cmd:
   - run
   - user: root
-  - name: '{{ kibana_home }}/bin/kibana plugin --install elasticsearch/marvel/{{ marvel_version }}'
+  - name: '/opt/kibana/bin/kibana plugin --install elasticsearch/marvel/{{ marvel_version }}'
   - require:
     - pkg: kibana
   - require_in:
     - service: kibana-svc
     - file: {{ kibana_home }}/optimize/.babelcache.json
-  - unless: 'test -d {{ kibana_plugins }}/marvel'
+  - unless: 'test -d /opt/kibana/installedPlugins/marvel'
 {% endif %}
 
-{% if pillar.elasticsearch.sense.install %}
+
+
+
+{% if pillar.elasticsearch.kibana.sense %}
+########
+# Sense
+########
+
+{% if es_major_version >= 5 %}
+invalid_configuration:
+  test:
+    - configurable_test_state
+    - changes: True
+    - result: False
+    - comment: "Sense doesn't exist on ES 5"
+{% endif %}
+
 install_sense:
   cmd:
   - run
   - user: root
-  - name: '{{ kibana_home }}/bin/kibana plugin --install elastic/sense'
+  - name: '/opt/kibana/bin/kibana plugin --install elastic/sense'
   - require:
     - pkg: kibana
   - require_in:
     - service: kibana-svc
     - file: {{ kibana_home }}/optimize/.babelcache.json
-  - unless: 'test -d {{ kibana_plugins }}/sense'
+  - unless: 'test -d /opt/kibana/installedPlugins/sense'
 {% endif %}
 
 {{ kibana_home }}/optimize/.babelcache.json:

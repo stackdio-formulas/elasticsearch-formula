@@ -39,7 +39,7 @@ pillar_defaults:
             # If the ES version is >= 5.0.0, we install the matching kibana
             # version instead of using this variable
             version: 4.6.6
-            sense: true
+            sense: false
         # only for ES 2 (see x-pack for encryption on ES 5)
         encrypted: false
         xpack:
