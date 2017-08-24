@@ -18,15 +18,13 @@ cluster.name: {{ grains.namespace }}
 node.name: {{ grains.id }}
 node.master: {{ master | lower }}
 node.data: {{ data | lower }}
-node.client: {{ client | lower }}
 
 # Network settings
 network.host: {{ grains.fqdn }}
 http.port: {{ pillar.elasticsearch.http_port }}
 transport.tcp.port: {{ pillar.elasticsearch.tcp_port }}
 
-# Discovery - just use the master nodes & disable multicast
-discovery.zen.ping.multicast.enabled: false
+# Discovery - just use the master nodes
 discovery.zen.minimum_master_nodes: {{ ((num_master_nodes / 2) + 1) | int }}
 discovery.zen.ping.unicast.hosts:
   {% for node in master_nodes %}
@@ -39,11 +37,9 @@ gateway.recover_after_nodes: {{ (num_data_nodes * 0.85) | int }}
 
 # Storage paths
 path.data: /mnt/elasticsearch/data
-path.work: /mnt/elasticsearch/work
 path.logs: /mnt/elasticsearch/logs
 
 # Disable the JVM from being swapped out
-bootstrap.mlockall: true
 bootstrap.memory_lock: true
 
 {%- if pillar.elasticsearch.marvel.install %}
@@ -91,15 +87,12 @@ shield:
         order: 2
 {% endif %}
 
-threadpool:
-  bulk:
-    queue_size: 1000
+thread_pool.bulk.queue_size: 1000
 
+{%- if pillar.elasticsearch.aws.install %}
 cloud:
   node:
     auto_attributes: true
-
-{%- if pillar.elasticsearch.aws.install %}
   aws:
     region: {{ pillar.elasticsearch.aws.region }}
 

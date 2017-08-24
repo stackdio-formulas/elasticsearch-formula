@@ -80,7 +80,7 @@ elasticsearch_env:
 
 {% if not config_only %}
 
-{% set dirs = ['', '/data', '/work', '/logs'] %}
+{% set dirs = ['', '/data', '/logs'] %}
 
 {% for dir in dirs %}
 /mnt/elasticsearch{{ dir }}:
