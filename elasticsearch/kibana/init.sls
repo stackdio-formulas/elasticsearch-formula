@@ -1,16 +1,31 @@
 {% set kibana_version = pillar.elasticsearch.kibana.version %}
 {% set es_version = pillar.elasticsearch.version %}
+{% set es_major_version = es_version.split('.')[0] | int %}
+{% set kibana_major_version = kibana_version.split('.')[0] | int %}
 {% set shield = salt['pillar.get']('elasticsearch:encrypted', False) %}
 
+{% if es_version >= 5 %}
+  {% set kibana_home = '/usr/share/kibana' %}
+  {% set kibana_config = '/etc/kibana' %}
+  {% set kibana_plugins = '/usr/share/kibana/plugins' %}
+{% else %}
+  {% set kibana_home = '/opt/kibana' %}
+  {% set kibana_config = '/opt/kibana/config' %}
+  {% set kibana_plugins = '/opt/kibana/installedPlugins' %}
+{% endif %}
+
+include:
+  - elasticsearch.kibana.repo
 
 kibana:
   pkg:
     - installed
+    - version: {% if es_major_version >= 5 %}{{ es_version }}{% else %}{{ kibana_version }}{% endif %}-1
     - require:
       - file: kibana-repo
 
 {% if pillar.elasticsearch.encrypted %}
-/opt/kibana/config/kibana.key:
+{{ kibana_config }}/kibana.key:
   file:
     - managed
     - user: kibana
@@ -22,7 +37,7 @@ kibana:
     - require_in:
       - pkg: kibana-svc
 
-/opt/kibana/config/kibana.crt:
+{{ kibana_config }}/kibana.crt:
   file:
     - managed
     - user: kibana
@@ -34,7 +49,7 @@ kibana:
     - require_in:
       - pkg: kibana-svc
 
-/opt/kibana/config/ca.crt:
+{{ kibana_config }}/ca.crt:
   file:
     - managed
     - user: kibana
@@ -46,12 +61,12 @@ kibana:
     - require_in:
       - pkg: kibana-svc
 
-{% endif %}d
+{% endif %}
 
-/opt/kibana/config/kibana.yml:
+{{ kibana_config }}/kibana.yml:
   file:
     - managed
-    - source: salt://elasticsearch/etc/kibana/kibana.yml
+    - source: salt://elasticsearch/etc/kibana/kibana-{% if es_major_version >= 5 %}{{ es_major_version }}{% else %}{{ kibana_major_version }}{% endif %}.yml
     - template: jinja
     - user: root
     - group: root
@@ -64,13 +79,13 @@ install_shield:
   cmd:
   - run
   - user: root
-  - name: '/opt/kibana/bin/kibana plugin --install kibana/shield/{{ es_version }}'
+  - name: '{{ kibana_home }}/bin/kibana plugin --install kibana/shield/{{ es_version }}'
   - require:
     - pkg: kibana
   - require_in:
     - service: kibana-svc
-    - file: /opt/kibana/optimize/.babelcache.json
-  - unless: 'test -d /opt/kibana/installedPlugins/shield'
+    - file: {{ kibana_home }}/optimize/.babelcache.json
+  - unless: 'test -d {{ kibana_plugins }}/shield'
 {% endif %}
 
 {% if salt['pillar.get']('elasticsearch:marvel:install', True) %}
@@ -80,13 +95,13 @@ install_marvel:
   cmd:
   - run
   - user: root
-  - name: '/opt/kibana/bin/kibana plugin --install elasticsearch/marvel/{{ marvel_version }}'
+  - name: '{{ kibana_home }}/bin/kibana plugin --install elasticsearch/marvel/{{ marvel_version }}'
   - require:
     - pkg: kibana
   - require_in:
     - service: kibana-svc
-    - file: /opt/kibana/optimize/.babelcache.json
-  - unless: 'test -d /opt/kibana/installedPlugins/marvel'
+    - file: {{ kibana_home }}/optimize/.babelcache.json
+  - unless: 'test -d {{ kibana_plugins }}/marvel'
 {% endif %}
 
 {% if salt['pillar.get']('elasticsearch:sense:install', True) %}
@@ -94,16 +109,16 @@ install_sense:
   cmd:
   - run
   - user: root
-  - name: '/opt/kibana/bin/kibana plugin --install elastic/sense'
+  - name: '{{ kibana_home }}/bin/kibana plugin --install elastic/sense'
   - require:
     - pkg: kibana
   - require_in:
     - service: kibana-svc
-    - file: /opt/kibana/optimize/.babelcache.json
-  - unless: 'test -d /opt/kibana/installedPlugins/sense'
+    - file: {{ kibana_home }}/optimize/.babelcache.json
+  - unless: 'test -d {{ kibana_plugins }}/sense'
 {% endif %}
 
-/opt/kibana/optimize/.babelcache.json:
+{{ kibana_home }}/optimize/.babelcache.json:
   file:
     - managed
     - user: kibana
@@ -118,6 +133,6 @@ kibana-svc:
     - enable: true
     - require:
       - pkg: kibana
-      - file: /opt/kibana/optimize/.babelcache.json
+      - file: {{ kibana_home }}/optimize/.babelcache.json
     - watch:
-      - file: /opt/kibana/config/kibana.yml
+      - file: {{ kibana_config }}/kibana.yml

@@ -1,7 +1,7 @@
-{% set major_version = pillar.elasticsearch.kibana.version.split('.')[0] | int %}
+{% set es_major_version = pillar.elasticsearch.version.split('.')[0] | int %}
 
 
-{% if major_version >= 5 %}
+{% if es_major_version >= 5 %}
 
 # Starting in kibana 5, kibana is located in the same repo with ES
 include:

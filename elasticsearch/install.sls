@@ -1,5 +1,6 @@
-{%- set config_only = 'elasticsearch.config_only' in grains.roles -%}
-{%- set es_version = pillar.elasticsearch.version -%}
+{% set config_only = 'elasticsearch.config_only' in grains.roles %}
+{% set es_version = pillar.elasticsearch.version %}
+{% set es_major_version = es_version.split('.')[0] | int %}
 
 include:
   - elasticsearch.repo
@@ -32,7 +33,7 @@ elasticsearch:
   file:
     - managed
     - mkdirs: false
-    - source: salt://elasticsearch/etc/elasticsearch/elasticsearch.yml
+    - source: salt://elasticsearch/etc/elasticsearch/elasticsearch-{{ es_major_version }}.yml
     - template: jinja
     - user: root
     - group: root
@@ -80,6 +81,7 @@ elasticsearch_default_config:
 
 {% endfor %}
 
+# Fix the memlock limits
 /etc/security/limits.conf:
   file:
     - append
@@ -89,7 +91,8 @@ elasticsearch_default_config:
     - require_in:
       - service: elasticsearch-svc
 
-
+{% if grains.init == 'systemd' %}
+# Fix the systemd script
 /usr/lib/systemd/system/elasticsearch.service:
   file:
     - replace
@@ -99,5 +102,6 @@ elasticsearch_default_config:
       - pkg: elasticsearch
     - require_in:
       - service: elasticsearch-svc
+{% endif %}
 
 {% endif %}

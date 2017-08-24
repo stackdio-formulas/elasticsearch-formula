@@ -23,28 +23,42 @@ components:
 
 pillar_defaults:
     elasticsearch:
-        version: 2.4.6
+        version: 5.5.2
         http_port: 9200
         tcp_port: 9300
         master_heap_size: 1g
         heap_size: 1g
         replicas: 2
-        discover_master: false
         marvel:
-            install: true
+            # Only valid in ES 2
+            install: false
             version: 2.4.5
-            external_cluster: null
-            is_external: null
+            external_cluster:
+            is_external:
         kibana:
-            version: 4.6.1
+            # If the ES version is >= 5.0.0, we install the matching kibana '
+            # version instead of using this variable
+            version: 4.6.6
             sense: true
+        # only for ES 2 (see x-pack for encryption on ES 5)
         encrypted: false
-        encryption:
-            ca_cert: CHANGE_ME
-            ca_key: CHANGE_ME
-            ca_key_pass: CHANGE_ME
+        x-pack:
+            # Only valid in ES 5
+            install: false
+            graph:
+                enabled: true
+            ml:
+                enabled: true
+            monitoring:
+                enabled: true
+            reporting:
+                enabled: true
+            security:
+                enabled: true
+            watcher:
+                enabled: true
         aws:
             install: false
-            region: null
-            access_key: null
-            secret_key: null
+            region:
+            access_key:
+            secret_key:
