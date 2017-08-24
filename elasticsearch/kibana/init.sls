@@ -24,7 +24,7 @@ kibana:
     - require:
       - file: kibana-repo
 
-{% if pillar.elasticsearch.encrypted %}
+{% if pillar.elasticsearch.xpack.security.enabled or pillar.elasticsearch.encrypted %}
 {{ kibana_config }}/kibana.key:
   file:
     - managed
@@ -75,6 +75,16 @@ kibana:
       - pkg: kibana
 
 {% if shield %}
+
+{% if es_major_version >= 5 %}
+invalid_configuration:
+  test:
+    - configurable_test_state
+    - changes: True
+    - result: False
+    - comment: "Shield doesn't exist on ES 5"
+{% endif %}
+
 install_shield:
   cmd:
   - run
@@ -88,7 +98,16 @@ install_shield:
   - unless: 'test -d {{ kibana_plugins }}/shield'
 {% endif %}
 
-{% if pillar.elasticsearch.marvel.instal %}
+{% if pillar.elasticsearch.marvel.install %}
+
+{% if es_major_version >= 5 %}
+invalid_configuration:
+  test:
+    - configurable_test_state
+    - changes: True
+    - result: False
+    - comment: "Marvel doesn't exist on ES 5"
+{% endif %}
 
 {% set marvel_version = salt['pillar.get']('elasticsearch:marvel:version', 'latest') %}
 install_marvel:
@@ -104,7 +123,7 @@ install_marvel:
   - unless: 'test -d {{ kibana_plugins }}/marvel'
 {% endif %}
 
-{% if salt['pillar.get']('elasticsearch:sense:install', True) %}
+{% if pillar.elasticsearch.sense.install %}
 install_sense:
   cmd:
   - run
