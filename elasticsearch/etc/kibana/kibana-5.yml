@@ -8,7 +8,6 @@
   {%- set data_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data', 'grains.items', 'compound').values() -%}
   {%- set es_host = data_nodes[0].fqdn -%}
 {%- endif -%}
-{%- set secure = pillar.elasticsearch.xpack.security.enabled -%}
 # Kibana is served by a back end server. This setting specifies the port to use.
 server.port: 5601
 
@@ -43,6 +42,9 @@ elasticsearch.url: "http{% if secure %}s{% endif %}://{{ es_host }}:{{ pillar.el
 # The default application to load.
 #kibana.defaultAppId: "discover"
 
+{% if pillar.elasticsearch.xpack.install %}
+{% set secure = pillar.elasticsearch.xpack.security.enabled %}
+
 xpack.security.enabled: {{ secure }}
 
 {% if secure %}
@@ -70,6 +72,8 @@ elasticsearch.ssl.certificateAuthorities: [ "/etc/kibana/ca.crt" ]
 
 # To disregard the validity of SSL certificates, change this setting's value to 'none'.
 elasticsearch.ssl.verificationMode: full
+{% endif %}
+
 {% endif %}
 
 # Time in milliseconds to wait for Elasticsearch to respond to pings. Defaults to the value of
