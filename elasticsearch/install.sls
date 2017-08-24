@@ -44,10 +44,25 @@ elasticsearch:
     - watch_in:
       - service: elasticsearch-svc
 
-elasticsearch_default_config:
+/etc/elasticsearch/jvm.options:
   file:
     - managed
-    - source: salt://elasticsearch/etc/default_config
+    - mkdirs: false
+    - source: salt://elasticsearch/etc/elasticsearch/jvm.options
+    - template: jinja
+    - user: root
+    - group: root
+    - mode: 644
+    - require:
+      - file: /etc/elasticsearch
+      - pkg: elasticsearch
+    - watch_in:
+      - service: elasticsearch-svc
+
+elasticsearch_env:
+  file:
+    - managed
+    - source: salt://elasticsearch/etc/env-{{ es_major_version }}
     {% if grains['os_family'] == 'Debian' %}
     - name: /etc/default/elasticsearch
     {% elif grains['os_family'] == 'RedHat' %}

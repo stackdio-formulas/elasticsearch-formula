@@ -26,8 +26,8 @@ pillar_defaults:
         version: 5.5.2
         http_port: 9200
         tcp_port: 9300
-        master_heap_size: 1g
-        heap_size: 1g
+        master_heap_size: 2g
+        heap_size: 2g
         replicas: 2
         marvel:
             # Only valid in ES 2

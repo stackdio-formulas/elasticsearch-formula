@@ -13,13 +13,6 @@
 {%- set num_master_nodes = master_nodes | length -%}
 {%- set num_data_nodes = data_nodes | length -%}
 
-{%- set num_shards = (num_data_nodes / 2) | int -%}
-{%- if num_shards < 5 -%}
-    {%- set num_shards = 5 -%}
-{%- endif -%}
-
-{%- set num_replicas = salt['pillar.get']('elasticsearch:replicas', 2) -%}
-
 # Naming
 cluster.name: {{ grains.namespace }}
 node.name: {{ grains.id }}
@@ -96,10 +89,6 @@ shield:
         type: pki
         order: 2
 {% endif %}
-
-index:
-  number_of_shards: {{ num_shards }}
-  number_of_replicas: {{ num_replicas }}
 
 threadpool:
   bulk:
