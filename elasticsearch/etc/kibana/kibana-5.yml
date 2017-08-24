@@ -8,6 +8,7 @@
   {%- set data_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data', 'grains.items', 'compound').values() -%}
   {%- set es_host = data_nodes[0].fqdn -%}
 {%- endif -%}
+{%- set use_https = pillar.elasticsearch.xpack.install and pillar.elasticsearch.xpack.security.enabled -%}
 # Kibana is served by a back end server. This setting specifies the port to use.
 server.port: 5601
 
@@ -28,7 +29,7 @@ server.host: "0.0.0.0"
 server.name: "{{ grains.fqdn }}"
 
 # The URL of the Elasticsearch instance to use for all your queries.
-elasticsearch.url: "http{% if secure %}s{% endif %}://{{ es_host }}:{{ pillar.elasticsearch.http_port }}"
+elasticsearch.url: "http{% if use_https %}s{% endif %}://{{ es_host }}:{{ pillar.elasticsearch.http_port }}"
 
 # When this setting's value is true Kibana uses the hostname specified in the server.host
 # setting. When the value of this setting is false, Kibana uses the hostname of the host
@@ -43,11 +44,10 @@ elasticsearch.url: "http{% if secure %}s{% endif %}://{{ es_host }}:{{ pillar.el
 #kibana.defaultAppId: "discover"
 
 {% if pillar.elasticsearch.xpack.install %}
-{% set secure = pillar.elasticsearch.xpack.security.enabled %}
 
-xpack.security.enabled: {{ secure }}
+xpack.security.enabled: {{ pillar.elasticsearch.xpack.security.enabled }}
 
-{% if secure %}
+{% if pillar.elasticsearch.xpack.security.enabled %}
 # If your Elasticsearch is protected with basic authentication, these settings provide
 # the username and password that the Kibana server uses to perform maintenance on the Kibana
 # index at startup. Your Kibana users still need to authenticate with Elasticsearch, which
