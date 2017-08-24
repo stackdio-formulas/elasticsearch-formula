@@ -36,7 +36,7 @@ pillar_defaults:
             external_cluster:
             is_external:
         kibana:
-            # If the ES version is >= 5.0.0, we install the matching kibana '
+            # If the ES version is >= 5.0.0, we install the matching kibana
             # version instead of using this variable
             version: 4.6.6
             sense: true
@@ -45,6 +45,7 @@ pillar_defaults:
         x-pack:
             # Only valid in ES 5
             install: false
+            # Enable everything by default
             graph:
                 enabled: true
             ml:
