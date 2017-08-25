@@ -63,6 +63,8 @@ install-x-pack:
     - group: root
     - mode: {% if 'elasticsearch.config_only' in grains.roles %}444{% else %}400{% endif %}
     - contents_pillar: ssl:private_key
+    - require:
+      - pkg: elasticsearch
     - watch_in:
       - service: elasticsearch-svc
 
@@ -73,6 +75,8 @@ install-x-pack:
     - group: elasticsearch
     - mode: 444
     - contents_pillar: ssl:chained_certificate
+    - require:
+      - pkg: elasticsearch
     - watch_in:
       - service: elasticsearch-svc
 
@@ -83,6 +87,8 @@ install-x-pack:
     - group: elasticsearch
     - mode: 444
     - contents_pillar: ssl:ca_certificate
+    - require:
+      - pkg: elasticsearch
     - watch_in:
       - service: elasticsearch-svc
 
