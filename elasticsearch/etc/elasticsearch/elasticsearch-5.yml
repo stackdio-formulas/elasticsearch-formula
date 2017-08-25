@@ -59,14 +59,14 @@ xpack:
     certificate: /etc/elasticsearch/elasticsearch.crt
     certificate_authorities: /etc/elasticsearch/ca.crt
 
-  graph.enabled: {{ pillar.elasticsearch.xpack.graph.enabled }}
-  ml.enabled: {{ pillar.elasticsearch.xpack.ml.enabled }}
-  monitoring.enabled: {{ pillar.elasticsearch.xpack.monitoring.enabled }}
-  reporting.enabled: {{ pillar.elasticsearch.xpack.reporting.enabled }}
-  watcher.enabled: {{ pillar.elasticsearch.xpack.watcher.enabled }}
+  graph.enabled: {{ pillar.elasticsearch.xpack.graph.enabled | json }}
+  ml.enabled: {{ pillar.elasticsearch.xpack.ml.enabled | json }}
+  monitoring.enabled: {{ pillar.elasticsearch.xpack.monitoring.enabled | json }}
+  reporting.enabled: {{ pillar.elasticsearch.xpack.reporting.enabled | json }}
+  watcher.enabled: {{ pillar.elasticsearch.xpack.watcher.enabled | json }}
 
   security:
-    enabled: {{ pillar.elasticsearch.xpack.security.enabled }}
+    enabled: {{ pillar.elasticsearch.xpack.security.enabled | json }}
     audit.enabled: true
     http.ssl:
       enabled: true
