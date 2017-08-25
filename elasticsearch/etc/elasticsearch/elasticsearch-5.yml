@@ -62,7 +62,6 @@ xpack:
   graph.enabled: {{ pillar.elasticsearch.xpack.graph.enabled | json }}
   ml.enabled: {{ pillar.elasticsearch.xpack.ml.enabled | json }}
   monitoring.enabled: {{ pillar.elasticsearch.xpack.monitoring.enabled | json }}
-  reporting.enabled: {{ pillar.elasticsearch.xpack.reporting.enabled | json }}
   watcher.enabled: {{ pillar.elasticsearch.xpack.watcher.enabled | json }}
 
   security:
