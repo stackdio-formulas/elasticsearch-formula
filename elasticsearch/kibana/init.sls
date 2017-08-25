@@ -74,19 +74,15 @@ kibana:
     - require:
       - pkg: kibana
 
+{% if es_major_version >= 5 %}
+########
+# ES >= 5 ONLY
+########
+
 {% if pillar.elasticsearch.xpack.install %}
 ########
 # X-Pack
 ########
-
-{% if es_major_version < 5 %}
-invalid_configuration:
-  test:
-    - configurable_test_state
-    - changes: True
-    - result: False
-    - comment: "XPack doesn't exist on ES < 5"
-{% endif %}
 
 install-x-pack:
   cmd:
@@ -102,20 +98,16 @@ install-x-pack:
 {% endif %}
 
 
+{% else %}
+
+########
+# ES < 5 ONLY
+########
 
 {% if shield %}
 ########
 # Shield
 ########
-
-{% if es_major_version >= 5 %}
-invalid_configuration:
-  test:
-    - configurable_test_state
-    - changes: True
-    - result: False
-    - comment: "Shield doesn't exist on ES 5"
-{% endif %}
 
 install_shield:
   cmd:
@@ -130,21 +122,10 @@ install_shield:
   - unless: 'test -d /opt/kibana/installedPlugins/shield'
 {% endif %}
 
-
-
 {% if pillar.elasticsearch.marvel.install %}
 ########
 # Marvel
 ########
-
-{% if es_major_version >= 5 %}
-invalid_configuration:
-  test:
-    - configurable_test_state
-    - changes: True
-    - result: False
-    - comment: "Marvel doesn't exist on ES 5"
-{% endif %}
 
 {% set marvel_version = salt['pillar.get']('elasticsearch:marvel:version', 'latest') %}
 install_marvel:
@@ -160,22 +141,10 @@ install_marvel:
   - unless: 'test -d /opt/kibana/installedPlugins/marvel'
 {% endif %}
 
-
-
-
 {% if pillar.elasticsearch.kibana.sense %}
 ########
 # Sense
 ########
-
-{% if es_major_version >= 5 %}
-invalid_configuration:
-  test:
-    - configurable_test_state
-    - changes: True
-    - result: False
-    - comment: "Sense doesn't exist on ES 5"
-{% endif %}
 
 install_sense:
   cmd:
@@ -189,6 +158,10 @@ install_sense:
     - file: {{ kibana_home }}/optimize/.babelcache.json
   - unless: 'test -d /opt/kibana/installedPlugins/sense'
 {% endif %}
+
+{% endif %}
+
+
 
 {{ kibana_home }}/optimize/.babelcache.json:
   file:
