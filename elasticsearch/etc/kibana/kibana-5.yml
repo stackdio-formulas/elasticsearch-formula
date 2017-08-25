@@ -45,7 +45,12 @@ elasticsearch.url: "http{% if use_https %}s{% endif %}://{{ es_host }}:{{ pillar
 
 {% if pillar.elasticsearch.xpack.install %}
 
-xpack.security.enabled: {{ pillar.elasticsearch.xpack.security.enabled }}
+xpack.graph.enabled: {{ pillar.elasticsearch.xpack.graph.enabled | json }}
+xpack.ml.enabled: {{ pillar.elasticsearch.xpack.ml.enabled | json }}
+xpack.monitoring.enabled: {{ pillar.elasticsearch.xpack.monitoring.enabled | json }}
+xpack.reporting.enabled: {{ pillar.elasticsearch.xpack.reporting.enabled | json }}
+xpack.security.enabled: {{ pillar.elasticsearch.xpack.security.enabled | json }}
+xpack.watcher.enabled: {{ pillar.elasticsearch.xpack.watcher.enabled | json }}
 
 {% if pillar.elasticsearch.xpack.security.enabled %}
 # If your Elasticsearch is protected with basic authentication, these settings provide

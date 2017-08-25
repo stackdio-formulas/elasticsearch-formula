@@ -40,17 +40,6 @@ path.logs: /mnt/elasticsearch/logs
 # Disable the JVM from being swapped out
 bootstrap.memory_lock: true
 
-{% if pillar.elasticsearch.marvel.install and pillar.elasticsearch.marvel.external_cluster %}
-marvel.agent.exporters:
-  id1:
-    type: http
-    host: ["http://{{ pillar.elasticsearch.marvel.external_cluster }}:{{ pillar.elasticsearch.http_port }}"]
-{% endif %}
-
-{% if pillar.elasticsearch.marvel.is_external %}
-marvel.agent.enabled: false
-{% endif %}
-
 {% if pillar.elasticsearch.xpack.install %}
 # X-Pack settings
 xpack:
@@ -61,8 +50,20 @@ xpack:
 
   graph.enabled: {{ pillar.elasticsearch.xpack.graph.enabled | json }}
   ml.enabled: {{ pillar.elasticsearch.xpack.ml.enabled | json }}
-  monitoring.enabled: {{ pillar.elasticsearch.xpack.monitoring.enabled | json }}
   watcher.enabled: {{ pillar.elasticsearch.xpack.watcher.enabled | json }}
+
+  monitoring:
+    enabled: {{ pillar.elasticsearch.xpack.monitoring.enabled | json }}
+    {% if pillar.elasticsearch.xpack.monitoring.exporter.url %}
+    exporters:
+      external:
+        type: http
+        host:
+          - '{{ pillar.elasticsearch.xpack.monitoring.exporter.url }}'
+        auth:
+          username: '{{ pillar.elasticsearch.xpack.monitoring.exporter.username }}'
+          password: '{{ pillar.elasticsearch.xpack.monitoring.exporter.password }}'
+    {% endif %}
 
   security:
     enabled: {{ pillar.elasticsearch.xpack.security.enabled | json }}

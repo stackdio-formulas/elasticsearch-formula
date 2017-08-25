@@ -27,7 +27,7 @@ include:
   {% endif %}
 
   {% if pillar.elasticsearch.aws.install %}
-  - elasticsearch.aws_plugin
+  - elasticsearch.aws
   {% endif %}
 
 
