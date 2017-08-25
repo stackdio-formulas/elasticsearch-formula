@@ -67,6 +67,7 @@ xpack:
 
   security:
     enabled: {{ pillar.elasticsearch.xpack.security.enabled }}
+    audit.enabled: true
     http.ssl:
       enabled: true
       client_authentication: optional
@@ -81,7 +82,7 @@ xpack:
         file:
           type: file
           order: 1
-        pki1:
+        pki:
           type: pki
           order: 2
 {% endif %}

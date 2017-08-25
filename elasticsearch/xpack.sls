@@ -8,7 +8,7 @@ invalid_configuration:
     - configurable_test_state
     - changes: True
     - result: False
-    - comment: "XPack doesn't exist on ES < 5"
+    - comment: "X-Pack doesn't exist on ES < 5"
 {% endif %}
 
 install-x-pack:
@@ -22,39 +22,39 @@ install-x-pack:
     - service: elasticsearch-svc
   - unless: '/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep x-pack'
 
-create_shield_user:
-  cmd:
-    - run
-    - user: root
-    - name: '/usr/share/elasticsearch/bin/shield/esusers useradd synthesys -p 123456 -r admin'
-    - unless: '/usr/share/elasticsearch/bin/shield/esusers list | grep synthesys'
-    - require:
-      - cmd: install_shield
-    - require_in:
-      - service: elasticsearch-svc
-
-create_kibana_user:
-  cmd:
-    - run
-    - user: root
-    - name: '/usr/share/elasticsearch/bin/shield/esusers useradd kibana-server -p 123456 -r kibana4_server'
-    - unless: '/usr/share/elasticsearch/bin/shield/esusers list | grep kibana-server'
-    - require:
-      - cmd: install_shield
-    - require_in:
-      - service: elasticsearch-svc
+{#create_shield_user:#}
+{#  cmd:#}
+{#    - run#}
+{#    - user: root#}
+{#    - name: '/usr/share/elasticsearch/bin/shield/esusers useradd synthesys -p 123456 -r admin'#}
+{#    - unless: '/usr/share/elasticsearch/bin/shield/esusers list | grep synthesys'#}
+{#    - require:#}
+{#      - cmd: install_shield#}
+{#    - require_in:#}
+{#      - service: elasticsearch-svc#}
+{##}
+{#create_kibana_user:#}
+{#  cmd:#}
+{#    - run#}
+{#    - user: root#}
+{#    - name: '/usr/share/elasticsearch/bin/shield/esusers useradd kibana-server -p 123456 -r kibana4_server'#}
+{#    - unless: '/usr/share/elasticsearch/bin/shield/esusers list | grep kibana-server'#}
+{#    - require:#}
+{#      - cmd: install_shield#}
+{#    - require_in:#}
+{#      - service: elasticsearch-svc#}
 
 # Must happen AFTER creating the user.. b/c the create user command adds the user to the config
 # in /usr/share/elasticsearch ...
-copy_shield_config:
-  cmd:
-    - run
-    - user: root
-    - name: 'cp -r {{ shield_config_dir }} /etc/elasticsearch'
-    - require:
-      - cmd: create_shield_user
-    - require_in:
-      - service: elasticsearch-svc
+{#copy_shield_config:#}
+{#  cmd:#}
+{#    - run#}
+{#    - user: root#}
+{#    - name: 'cp -r {{ shield_config_dir }} /etc/elasticsearch'#}
+{#    - require:#}
+{#      - cmd: create_shield_user#}
+{#    - require_in:#}
+{#      - service: elasticsearch-svc#}
 
 /etc/elasticsearch/elasticsearch.key:
   file:
@@ -89,13 +89,13 @@ copy_shield_config:
 role-mapping:
   file:
     - managed
-    - name: /etc/elasticsearch/shield/role_mapping.yml
-    - source: salt://elasticsearch/etc/elasticsearch/shield/role_mapping.yml
+    - name: /etc/elasticsearch/x-pack/role_mapping.yml
+    - source: salt://elasticsearch/etc/elasticsearch/x-pack/role_mapping.yml
     - template: jinja
     - user: root
     - group: root
     - mode: 644
-    - require:
-      - cmd: copy_shield_config
+{#    - require:#}
+{#      - cmd: copy_shield_config#}
     - watch_in:
       - service: elasticsearch-svc

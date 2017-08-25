@@ -31,7 +31,7 @@ pillar_defaults:
         replicas: 2
         marvel:
             # Only valid in ES 2
-            install: false
+            install: true
             version: 2.4.5
             external_cluster:
             is_external:
@@ -39,12 +39,12 @@ pillar_defaults:
             # If the ES version is >= 5.0.0, we install the matching kibana
             # version instead of using this variable
             version: 4.6.6
-            sense: false
+            sense: true
         # only for ES 2 (see x-pack for encryption on ES 5)
         encrypted: false
         xpack:
             # Only valid in ES 5
-            install: false
+            install: true
             # Enable everything by default
             graph:
                 enabled: true
@@ -55,7 +55,7 @@ pillar_defaults:
             reporting:
                 enabled: true
             security:
-                enabled: true
+                enabled: false
             watcher:
                 enabled: true
         aws:

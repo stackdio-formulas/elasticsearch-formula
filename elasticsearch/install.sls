@@ -4,12 +4,28 @@
 
 include:
   - elasticsearch.repo
+
+  {% if es_major_version >= 5 %}
+
+  {# These are only valid for ES >= 5 #}
+  {% if pillar.elasticsearch.xpack.install %}
+  - elasticsearch.xpack
+  {% endif %}
+  {# END ES >= 5 #}
+
+  {% else %}
+
+  {# These are only valid for ES < 5 #}
   {% if pillar.elasticsearch.marvel.install %}
   - elasticsearch.marvel
   {% endif %}
   {% if pillar.elasticsearch.encrypted %}
   - elasticsearch.shield
   {% endif %}
+  {# END ES < 5 #}
+
+  {% endif %}
+
   {% if pillar.elasticsearch.aws.install %}
   - elasticsearch.aws_plugin
   {% endif %}
