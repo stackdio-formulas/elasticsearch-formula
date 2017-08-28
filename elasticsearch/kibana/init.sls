@@ -181,6 +181,6 @@ kibana-svc:
     - enable: true
     - require:
       - pkg: kibana
-      - file: {{ kibana_home }}/optimize
     - watch:
+      - file: {{ kibana_home }}/optimize
       - file: {{ kibana_config }}/kibana.yml
