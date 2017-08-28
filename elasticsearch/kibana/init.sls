@@ -118,7 +118,7 @@ install_shield:
     - pkg: kibana
   - require_in:
     - service: kibana-svc
-    - file: {{ kibana_home }}/optimize/.babelcache.json
+    - file: {{ kibana_home }}/optimize
   - unless: 'test -d /opt/kibana/installedPlugins/shield'
 {% endif %}
 
@@ -137,7 +137,7 @@ install_marvel:
     - pkg: kibana
   - require_in:
     - service: kibana-svc
-    - file: {{ kibana_home }}/optimize/.babelcache.json
+    - file: {{ kibana_home }}/optimize
   - unless: 'test -d /opt/kibana/installedPlugins/marvel'
 {% endif %}
 
@@ -155,7 +155,7 @@ install_sense:
     - pkg: kibana
   - require_in:
     - service: kibana-svc
-    - file: {{ kibana_home }}/optimize/.babelcache.json
+    - file: {{ kibana_home }}/optimize
   - unless: 'test -d /opt/kibana/installedPlugins/sense'
 {% endif %}
 
@@ -163,11 +163,14 @@ install_sense:
 
 
 
-{{ kibana_home }}/optimize/.babelcache.json:
+{{ kibana_home }}/optimize:
   file:
-    - managed
+    - directory
     - user: kibana
     - group: kibana
+    - recurse:
+      - user
+      - group
     - require:
       - pkg: kibana
 
@@ -178,6 +181,6 @@ kibana-svc:
     - enable: true
     - require:
       - pkg: kibana
-      - file: {{ kibana_home }}/optimize/.babelcache.json
+      - file: {{ kibana_home }}/optimize
     - watch:
       - file: {{ kibana_config }}/kibana.yml
