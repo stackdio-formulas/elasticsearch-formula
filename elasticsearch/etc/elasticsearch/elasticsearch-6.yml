@@ -75,6 +75,10 @@ xpack:
       enabled: true
       client_authentication: required
     authc:
+      # Just disable the token for now
+      token:
+        enabled: false
+        #passphrase:
       realms:
         native:
           type: native
