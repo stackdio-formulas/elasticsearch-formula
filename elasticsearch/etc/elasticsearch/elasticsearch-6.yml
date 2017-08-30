@@ -90,16 +90,7 @@ xpack:
 thread_pool.bulk.queue_size: 1000
 
 {% if pillar.elasticsearch.aws.install %}
-cloud:
-  node:
-    auto_attributes: true
-  aws:
-    region: {{ pillar.elasticsearch.aws.region }}
-
-    {% if pillar.elasticsearch.aws.access_key %}
-    access_key: {{ pillar.elasticsearch.aws.access_key }}
-    secret_key: {{ pillar.elasticsearch.aws.secret_key }}
-    {% endif %}
+cloud.node.auto_attributes: true
 
 # Do routing based on the AZ
 cluster.routing.allocation.awareness.attributes: aws_availability_zone
