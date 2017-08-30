@@ -90,3 +90,21 @@ role-mapping:
       - file: /etc/elasticsearch/x-pack
     - watch_in:
       - service: elasticsearch-svc
+
+{% if es_major_version >= 6 and 'elasticsearch.config_only' not in grains.roles %}
+
+# Set a password in the ES keystore (only if we're not a config only node)
+set-password:
+  cmd:
+    - run
+    - user: root
+    - name: 'echo "123456" | /usr/share/elasticsearch/bin/elasticsearch-keystore add bootstrap.password'
+    - unless: '/usr/share/elasticsearch/bin/elasticsearch-keystore list | grep bootstrap.password'
+    - require:
+      - pkg: elasticsearch
+      - cmd: create-es-keystore
+    - require_in:
+      - file: keystore-permissions
+      - service: elasticsearch-svc
+
+{% endif %}
