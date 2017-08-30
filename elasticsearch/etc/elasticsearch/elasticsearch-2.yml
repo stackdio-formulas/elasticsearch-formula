@@ -41,7 +41,7 @@ discovery.zen.ping.unicast.hosts:
   {% endfor %}
 
 # Recovery settings - this should help A LOT when restarting clusters.
-gateway.recover_after_time: 2m
+gateway.recover_after_time: 1m
 gateway.recover_after_nodes: {{ (num_data_nodes * 0.85) | int }}
 
 # Storage paths
