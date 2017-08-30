@@ -72,7 +72,6 @@ xpack:
       enabled: true
       client_authentication: optional
     transport.ssl:
-      enabled: true
       client_authentication: required
     authc:
       # Just disable the token for now
