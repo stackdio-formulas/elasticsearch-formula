@@ -164,10 +164,11 @@ keystore-permissions:
 {% if grains.init == 'systemd' %}
 # Fix the systemd script
 /usr/lib/systemd/system/elasticsearch.service:
-  file:
-    - replace
-    - pattern: '#LimitMEMLOCK=infinity'
-    - repl: 'LimitMEMLOCK=infinity'
+  ini:
+    - options_present
+    - sections:
+        Service:
+          LimitMEMLOCK: infinity
     - require:
       - pkg: elasticsearch
     - require_in:
