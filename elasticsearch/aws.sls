@@ -29,6 +29,41 @@ install-repository-s3:
     - service: elasticsearch-svc
 
 
+/etc/elasticsearch/discovery-ec2:
+  file:
+    - directory
+    - user: root
+    - group: elasticsearch
+    - dir_mode: 755
+    - file_mode: 664
+    - recurse:
+      - user
+      - group
+      - mode
+    - require:
+      - pkg: elasticsearch
+      - cmd: install-discovery-ec2
+    - require_in:
+      - service: elasticsearch-svc
+
+
+/etc/elasticsearch/repository-s3:
+  file:
+    - directory
+    - user: root
+    - group: elasticsearch
+    - dir_mode: 755
+    - file_mode: 664
+    - recurse:
+      - user
+      - group
+      - mode
+    - require:
+      - pkg: elasticsearch
+      - cmd: install-repository-s3
+    - require_in:
+      - service: elasticsearch-svc
+
 {% else %}
 
 install-cloud-aws:

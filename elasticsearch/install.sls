@@ -42,9 +42,9 @@ elasticsearch:
   file:
     - directory
     - user: root
-    - group: root
+    - group: elasticsearch
     - dir_mode: 755
-    - file_mode: 644
+    - file_mode: 664
     - recurse:
       - user
       - group
@@ -61,8 +61,8 @@ elasticsearch:
     - source: salt://elasticsearch/etc/elasticsearch/elasticsearch-{{ es_major_version }}.yml
     - template: jinja
     - user: root
-    - group: root
-    - mode: 644
+    - group: elasticsearch
+    - mode: 664
     - require:
       - file: /etc/elasticsearch
       - pkg: elasticsearch
@@ -76,8 +76,8 @@ elasticsearch:
     - source: salt://elasticsearch/etc/elasticsearch/jvm.options
     - template: jinja
     - user: root
-    - group: root
-    - mode: 644
+    - group: elasticsearch
+    - mode: 664
     - require:
       - file: /etc/elasticsearch
       - pkg: elasticsearch
@@ -120,6 +120,35 @@ elasticsearch_env:
       - service: elasticsearch-svc
 
 {% endfor %}
+
+{% if es_major_version >= 5 and 'elasticsearch.config_only' not in grains.roles %}
+
+# Create the ES keystore (only if we're not a config only node)
+create-es-keystore:
+  cmd:
+    - run
+    - user: root
+    - name: '/usr/share/elasticsearch/bin/elasticsearch-keystore create'
+    - unless: 'test -f /etc/elasticsearch/elasticsearch.keystore'
+    - require:
+      - pkg: elasticsearch
+    - require_in:
+      - service: elasticsearch-svc
+
+# Fix permissions on the keystore
+/etc/elasticsearch/elasticsearch.keystore:
+  file:
+    - managed
+    - user: root
+    - group: elasticsearch
+    - mode: 660
+    - require:
+      - pkg: elasticsearch
+      - cmd: create-es-keystore
+    - require_in:
+      - service: elasticsearch-svc
+
+{% endif %}
 
 # Fix the memlock limits
 /etc/security/limits.conf:

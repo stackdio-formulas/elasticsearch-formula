@@ -22,12 +22,29 @@ install-x-pack:
     - service: elasticsearch-svc
   - unless: '/usr/share/elasticsearch/bin/elasticsearch-plugin list | grep x-pack'
 
+/etc/elasticsearch/x-pack:
+  file:
+    - directory
+    - user: root
+    - group: elasticsearch
+    - dir_mode: 755
+    - file_mode: 664
+    - recurse:
+      - user
+      - group
+      - mode
+    - require:
+      - pkg: elasticsearch
+      - cmd: install-x-pack
+    - require_in:
+      - service: elasticsearch-svc
+
 /etc/elasticsearch/elasticsearch.key:
   file:
     - managed
     - user: root
-    - group: root
-    - mode: {% if 'elasticsearch.config_only' in grains.roles %}444{% else %}400{% endif %}
+    - group: elasticsearch
+    - mode: {% if 'elasticsearch.config_only' in grains.roles %}444{% else %}440{% endif %}
     - contents_pillar: ssl:private_key
     - require:
       - pkg: elasticsearch
@@ -37,7 +54,7 @@ install-x-pack:
 /etc/elasticsearch/elasticsearch.crt:
   file:
     - managed
-    - user: elasticsearch
+    - user: root
     - group: elasticsearch
     - mode: 444
     - contents_pillar: ssl:chained_certificate
@@ -49,7 +66,7 @@ install-x-pack:
 /etc/elasticsearch/ca.crt:
   file:
     - managed
-    - user: elasticsearch
+    - user: root
     - group: elasticsearch
     - mode: 444
     - contents_pillar: ssl:ca_certificate
@@ -65,10 +82,11 @@ role-mapping:
     - source: salt://elasticsearch/etc/elasticsearch/x-pack/role_mapping.yml
     - template: jinja
     - user: root
-    - group: root
-    - mode: 644
+    - group: elasticsearch
+    - mode: 664
     - require:
       - pkg: elasticsearch
       - cmd: install-x-pack
+      - file: /etc/elasticsearch/x-pack
     - watch_in:
       - service: elasticsearch-svc
