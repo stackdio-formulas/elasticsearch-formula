@@ -1,6 +1,6 @@
 {% set major_version = pillar.elasticsearch.version.split('.')[0] | int %}
 
-{% if major_version == 5 %}
+{% if major_version >= 5 %}
   {% set key_url = 'https://artifacts.elastic.co/GPG-KEY-elasticsearch' %}
   {% set deb_url = 'https://artifacts.elastic.co/packages/5.x/apt' %}
 {% elif major_version == 2 %}
