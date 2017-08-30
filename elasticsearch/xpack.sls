@@ -98,7 +98,7 @@ set-password:
   cmd:
     - run
     - user: root
-    - name: 'echo "123456" | /usr/share/elasticsearch/bin/elasticsearch-keystore add bootstrap.password'
+    - name: 'echo "123456" | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin bootstrap.password'
     - unless: '/usr/share/elasticsearch/bin/elasticsearch-keystore list | grep bootstrap.password'
     - require:
       - pkg: elasticsearch
