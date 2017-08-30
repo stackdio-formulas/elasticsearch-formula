@@ -49,7 +49,6 @@ path.data: /mnt/elasticsearch/data
 path.logs: /mnt/elasticsearch/logs
 
 # Disable the JVM from being swapped out
-bootstrap.mlockall: true
 bootstrap.memory_lock: true
 
 {% if pillar.elasticsearch.marvel.install and pillar.elasticsearch.marvel.external_cluster %}
