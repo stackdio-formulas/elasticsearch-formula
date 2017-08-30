@@ -136,9 +136,10 @@ create-es-keystore:
       - service: elasticsearch-svc
 
 # Fix permissions on the keystore
-/etc/elasticsearch/elasticsearch.keystore:
+keystore-permissions:
   file:
     - managed
+    - name: /etc/elasticsearch/elasticsearch.keystore
     - user: root
     - group: elasticsearch
     - mode: 660
