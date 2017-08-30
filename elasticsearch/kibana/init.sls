@@ -20,7 +20,7 @@ include:
 kibana:
   pkg:
     - installed
-    - version: {% if es_major_version >= 5 %}{{ es_version }}{% else %}{{ kibana_version }}{% endif %}-1
+    - version: {% if es_major_version >= 5 %}{{ es_version | replace('-', '_') }}{% else %}{{ kibana_version }}{% endif %}-1
     - require:
       - file: kibana-repo
 

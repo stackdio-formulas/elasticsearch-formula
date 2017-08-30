@@ -34,7 +34,7 @@ include:
 elasticsearch:
   pkg:
     - installed
-    - version: {{ es_version }}-1
+    - version: {{ es_version | replace('-', '_') }}-1
     - require:
       - file: elasticsearch-repo
 

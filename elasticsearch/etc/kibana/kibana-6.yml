@@ -57,8 +57,8 @@ xpack.watcher.enabled: {{ pillar.elasticsearch.xpack.watcher.enabled | json }}
 # the username and password that the Kibana server uses to perform maintenance on the Kibana
 # index at startup. Your Kibana users still need to authenticate with Elasticsearch, which
 # is proxied through the Kibana server.
-#elasticsearch.username: "kibana"
-#elasticsearch.password: "password"
+#elasticsearch.username: "user"
+#elasticsearch.password: "pass"
 
 # Fall back on PKI for kibana authentication instead of user/pass
 xpack.security.useDefaultEsCredentials: false
