@@ -1,91 +1,93 @@
-{%- set config_only = 'elasticsearch.config_only' in grains.roles -%}
-{%- set es_version = pillar.elasticsearch.version -%}
+{% set config_only = 'elasticsearch.config_only' in grains.roles %}
+{% set es_version = pillar.elasticsearch.version %}
+{% set es_major_version = es_version.split('.')[0] | int %}
 
-{% if grains['os_family'] == 'RedHat' %}
-# Centos
+include:
+  - elasticsearch.repo
 
-import_repo_key:
-  cmd:
-  - run
-  - name: 'rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch'
-  - unless: 'rpm -qa | grep elasticsearch'
+  {% if es_major_version >= 5 %}
 
-/etc/yum.repos.d/elasticsearch.repo:
-  file:
-    - managed
-    - mkdirs: false
-    - source: salt://elasticsearch/etc/yum.repos.d/elasticsearch.repo
-    - template: jinja
-    - user: root
-    - group: root
-    - mode: 644
-    - require:
-      - cmd: import_repo_key
-    - require_in:
-      - pkg: elasticsearch
+  {# These are only valid for ES >= 5 #}
+  {% if pillar.elasticsearch.xpack.install %}
+  - elasticsearch.xpack
+  {% endif %}
+  {# END ES >= 5 #}
 
-{% elif grains['os_family'] == 'Debian' %}
-# Ubuntu
+  {% else %}
 
-import_repo_key:
-  cmd:
-  - run
-  - user: root
-  - name: 'curl https://packages.elastic.co/GPG-KEY-elasticsearch | apt-key add -'
-  - unless: 'apt-key list | grep Elasticsearch'
+  {# These are only valid for ES < 5 #}
+  {% if pillar.elasticsearch.marvel.install %}
+  - elasticsearch.marvel
+  {% endif %}
+  {% if pillar.elasticsearch.encrypted %}
+  - elasticsearch.shield
+  {% endif %}
+  {# END ES < 5 #}
 
-/etc/apt/sources.list.d/elasticsearch.list:
-  file:
-    - managed
-    - mkdirs: false
-    - source: salt://elasticsearch/etc/apt/sources.list.d/elasticsearch.list
-    - template: jinja
-    - user: root
-    - group: root
-    - mode: 644
-    - require:
-      - cmd: import_repo_key
-    - require_in:
-      - pkg: elasticsearch
-{% endif %}
+  {% endif %}
+
+  {% if pillar.elasticsearch.aws.install %}
+  - elasticsearch.aws
+  {% endif %}
 
 
 elasticsearch:
   pkg:
     - installed
-    - version: {{ es_version }}-1
+    - version: {{ es_version | replace('-', '_') }}-1
+    - require:
+      - file: elasticsearch-repo
 
 /etc/elasticsearch:
   file:
     - directory
     - user: root
-    - group: root
+    - group: elasticsearch
     - dir_mode: 755
-    - file_mode: 644
+    - file_mode: 664
     - recurse:
       - user
       - group
       - mode
     - require:
       - pkg: elasticsearch
+    - require_in:
+      - service: elasticsearch-svc
 
 /etc/elasticsearch/elasticsearch.yml:
   file:
     - managed
     - mkdirs: false
-    - source: salt://elasticsearch/etc/elasticsearch/elasticsearch.yml
+    - source: salt://elasticsearch/etc/elasticsearch/elasticsearch-{{ es_major_version }}.yml
     - template: jinja
     - user: root
-    - group: root
-    - mode: 644
+    - group: elasticsearch
+    - mode: 664
     - require:
       - file: /etc/elasticsearch
       - pkg: elasticsearch
+    - watch_in:
+      - service: elasticsearch-svc
 
-elasticsearch_default_config:
+/etc/elasticsearch/jvm.options:
   file:
     - managed
-    - source: salt://elasticsearch/etc/default_config
+    - mkdirs: false
+    - source: salt://elasticsearch/etc/elasticsearch/jvm.options
+    - template: jinja
+    - user: root
+    - group: elasticsearch
+    - mode: 664
+    - require:
+      - file: /etc/elasticsearch
+      - pkg: elasticsearch
+    - watch_in:
+      - service: elasticsearch-svc
+
+elasticsearch_env:
+  file:
+    - managed
+    - source: salt://elasticsearch/etc/env-{{ es_major_version }}
     {% if grains['os_family'] == 'Debian' %}
     - name: /etc/default/elasticsearch
     {% elif grains['os_family'] == 'RedHat' %}
@@ -97,11 +99,13 @@ elasticsearch_default_config:
     - mode: 644
     - require:
       - pkg: elasticsearch
+    - watch_in:
+      - service: elasticsearch-svc
 
 
 {% if not config_only %}
 
-{% set dirs = ['', '/data', '/work', '/logs'] %}
+{% set dirs = ['', '/data', '/logs'] %}
 
 {% for dir in dirs %}
 /mnt/elasticsearch{{ dir }}:
@@ -113,19 +117,62 @@ elasticsearch_default_config:
     - require:
       - pkg: elasticsearch
     - require_in:
-      - service: start_elasticsearch
+      - service: elasticsearch-svc
 
 {% endfor %}
 
+{% if es_major_version >= 5 and 'elasticsearch.config_only' not in grains.roles %}
+
+# Create the ES keystore (only if we're not a config only node)
+create-es-keystore:
+  cmd:
+    - run
+    - user: root
+    - name: '/usr/share/elasticsearch/bin/elasticsearch-keystore create'
+    - unless: 'test -f /etc/elasticsearch/elasticsearch.keystore'
+    - require:
+      - pkg: elasticsearch
+    - require_in:
+      - service: elasticsearch-svc
+
+# Fix permissions on the keystore
+keystore-permissions:
+  file:
+    - managed
+    - name: /etc/elasticsearch/elasticsearch.keystore
+    - user: root
+    - group: elasticsearch
+    - mode: 660
+    - require:
+      - pkg: elasticsearch
+      - cmd: create-es-keystore
+    - require_in:
+      - service: elasticsearch-svc
+
+{% endif %}
+
+# Fix the memlock limits
 /etc/security/limits.conf:
   file:
     - append
     - text:
       - elasticsearch - memlock unlimited
       - root - memlock unlimited
+    - require_in:
+      - service: elasticsearch-svc
 
-/bin/sed 's/#LimitMEMLOCK=infinity/LimitMEMLOCK=infinity/' /usr/lib/systemd/system/elasticsearch.service:
-  cmd:
-    - run
+{% if grains.init == 'systemd' %}
+# Fix the systemd script
+/usr/lib/systemd/system/elasticsearch.service:
+  ini:
+    - options_present
+    - sections:
+        Service:
+          LimitMEMLOCK: infinity
+    - require:
+      - pkg: elasticsearch
+    - require_in:
+      - service: elasticsearch-svc
+{% endif %}
 
 {% endif %}

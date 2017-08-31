@@ -1,0 +1,106 @@
+{%- set client = 'elasticsearch.client' in grains.roles -%}
+
+{# We can only be a master or data node if we're not a client node #}
+{%- set master = 'elasticsearch.master' in grains.roles and not client -%}
+{%- set data = 'elasticsearch.data' in grains.roles and not client -%}
+
+{# the lists of master & data nodes should NOT include client nodes #}
+{%- set master_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.master and not G@roles:elasticsearch.client', 'grains.items', 'compound').values() -%}
+{%- set data_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.data and not G@roles:elasticsearch.client', 'grains.items', 'compound').values() -%}
+
+{%- set num_master_nodes = master_nodes | length -%}
+{%- set num_data_nodes = data_nodes | length -%}
+
+# Naming
+cluster.name: {{ grains.namespace }}
+node.name: {{ grains.id }}
+node.master: {{ master | lower }}
+node.data: {{ data | lower }}
+
+# Network settings
+network.host: {{ grains.fqdn }}
+http.port: {{ pillar.elasticsearch.http_port }}
+transport.tcp.port: {{ pillar.elasticsearch.tcp_port }}
+
+# Discovery - just use the master nodes
+discovery.zen.minimum_master_nodes: {{ ((num_master_nodes / 2) + 1) | int }}
+discovery.zen.ping.unicast.hosts:
+  {% for node in master_nodes %}
+  - {{ node.fqdn }}:{{ pillar.elasticsearch.tcp_port }}
+  {% endfor %}
+
+# Recovery settings - this should help A LOT when restarting clusters.
+gateway.recover_after_time: 1m
+gateway.recover_after_nodes: {{ (num_data_nodes * 0.85) | int }}
+
+# Storage paths
+path.data: /mnt/elasticsearch/data
+path.logs: /mnt/elasticsearch/logs
+
+# Disable the JVM from being swapped out
+bootstrap.memory_lock: true
+
+{% if pillar.elasticsearch.xpack.install %}
+# X-Pack settings
+xpack:
+  ssl:
+    key: /etc/elasticsearch/elasticsearch.key
+    certificate: /etc/elasticsearch/elasticsearch.crt
+    certificate_authorities: /etc/elasticsearch/ca.crt
+
+  graph.enabled: {{ pillar.elasticsearch.xpack.graph.enabled | json }}
+  ml.enabled: {{ pillar.elasticsearch.xpack.ml.enabled | json }}
+  watcher.enabled: {{ pillar.elasticsearch.xpack.watcher.enabled | json }}
+
+  monitoring:
+    enabled: {{ pillar.elasticsearch.xpack.monitoring.enabled | json }}
+    {% if pillar.elasticsearch.xpack.monitoring.exporter.url %}
+    exporters:
+      external:
+        type: http
+        host:
+          - '{{ pillar.elasticsearch.xpack.monitoring.exporter.url }}'
+        auth:
+          username: '{{ pillar.elasticsearch.xpack.monitoring.exporter.username }}'
+          password: '{{ pillar.elasticsearch.xpack.monitoring.exporter.password }}'
+    {% endif %}
+
+  security:
+    enabled: {{ pillar.elasticsearch.xpack.security.enabled | json }}
+    audit.enabled: true
+    http.ssl:
+      enabled: true
+      client_authentication: optional
+    transport.ssl:
+      enabled: true
+      client_authentication: required
+    authc:
+      realms:
+        native:
+          type: native
+          order: 0
+        file:
+          type: file
+          order: 1
+        pki:
+          type: pki
+          order: 2
+{% endif %}
+
+thread_pool.bulk.queue_size: 1000
+
+{% if pillar.elasticsearch.aws.install %}
+cloud:
+  node:
+    auto_attributes: true
+  aws:
+    region: {{ pillar.elasticsearch.aws.region }}
+
+    {% if pillar.elasticsearch.aws.access_key %}
+    access_key: {{ pillar.elasticsearch.aws.access_key }}
+    secret_key: {{ pillar.elasticsearch.aws.secret_key }}
+    {% endif %}
+
+# Do routing based on the AZ
+cluster.routing.allocation.awareness.attributes: aws_availability_zone
+{% endif %}

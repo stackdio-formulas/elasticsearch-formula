@@ -1,10 +1,17 @@
-{%- if pillar.elasticsearch.version.split('.')[0] | int >= 2  -%}
-  {%- set shield_config_dir = '/usr/share/elasticsearch/plugins/shield/config' -%}
-{%- else -%}
-  {%- set shield_config_dir = '/usr/share/elasticsearch/config/shield' -%}
-{%- endif -%}
 
-{% if pillar.elasticsearch.version.split('.')[0] | int >= 2  %}
+{% set es_version = pillar.elasticsearch.version %}
+{% set es_major_version = es_version.split('.')[0] | int %}
+
+{% if es_major_version >= 5 %}
+invalid_configuration:
+  test:
+    - configurable_test_state
+    - changes: True
+    - result: False
+    - comment: "Shield doesn't exist on ES 5"
+{% endif %}
+
+{% set shield_config_dir = '/usr/share/elasticsearch/plugins/shield/config' %}
 
 install_license_shield:
   cmd:
@@ -14,7 +21,7 @@ install_license_shield:
   - require:
     - pkg: elasticsearch
   - require_in:
-    - service: start_elasticsearch
+    - service: elasticsearch-svc
   - unless: '/usr/share/elasticsearch/bin/plugin list | grep license'
 
 install_shield:
@@ -26,34 +33,8 @@ install_shield:
     - pkg: elasticsearch
     - cmd: install_license_shield
   - require_in:
-    - service: start_elasticsearch
+    - service: elasticsearch-svc
   - unless: '/usr/share/elasticsearch/bin/plugin list | grep shield'
-
-{% else %}
-
-install_license_sheild:
-  cmd:
-    - run
-    - user: root
-    - name: '/usr/share/elasticsearch/bin/plugin -i elasticsearch/license/latest'
-    - require:
-      - pkg: elasticsearch
-    - require_in:
-      - service: start_elasticsearch
-    - unless: '/usr/share/elasticsearch/bin/plugin -l | grep license'
-
-install_shield:
-  cmd:
-    - run
-    - user: root
-    - name: '/usr/share/elasticsearch/bin/plugin -i elasticsearch/shield/latest'
-    - require:
-      - pkg: elasticsearch
-      - cmd: install_license_shield
-    - require_in:
-      - service: start_elasticsearch
-    - unless: '/usr/share/elasticsearch/bin/plugin -l | grep shield'
-{% endif %}
 
 create_shield_user:
   cmd:
@@ -64,7 +45,7 @@ create_shield_user:
     - require:
       - cmd: install_shield
     - require_in:
-      - service: start_elasticsearch
+      - service: elasticsearch-svc
 
 create_kibana_user:
   cmd:
@@ -75,7 +56,7 @@ create_kibana_user:
     - require:
       - cmd: install_shield
     - require_in:
-      - service: start_elasticsearch
+      - service: elasticsearch-svc
 
 # Must happen AFTER creating the user.. b/c the create user command adds the user to the config
 # in /usr/share/elasticsearch ...
@@ -87,7 +68,7 @@ copy_shield_config:
     - require:
       - cmd: create_shield_user
     - require_in:
-      - service: start_elasticsearch
+      - service: elasticsearch-svc
 
 /etc/elasticsearch/elasticsearch.key:
   file:
@@ -146,7 +127,7 @@ create-truststore:
     - require:
       - file: /etc/elasticsearch/ca.crt
     - require_in:
-      - service: start_elasticsearch
+      - service: elasticsearch-svc
 
 create-keystore:
   cmd:
@@ -157,7 +138,7 @@ create-keystore:
     - require:
       - cmd: create-pkcs12
     - require_in:
-      - service: start_elasticsearch
+      - service: elasticsearch-svc
 
 chmod-keystore:
   cmd:
@@ -167,7 +148,7 @@ chmod-keystore:
     - require:
       - cmd: create-keystore
     - require_in:
-      - service: start_elasticsearch
+      - service: elasticsearch-svc
 
 chown-keystore:
   cmd:
@@ -178,7 +159,7 @@ chown-keystore:
       - cmd: create-keystore
       - cmd: chmod-keystore
     - require_in:
-      - service: start_elasticsearch
+      - service: elasticsearch-svc
 
 role-mapping:
   file:
@@ -192,4 +173,4 @@ role-mapping:
     - require:
       - cmd: copy_shield_config
     - watch_in:
-      - service: start_elasticsearch
+      - service: elasticsearch-svc

@@ -4,9 +4,6 @@
 
 include:
   - elasticsearch.install
-  {% if salt['pillar.get']('elasticsearch:encrypted', False) %}
-  - elasticsearch.shield
-  {% endif %}
 
 {% if master or data or client %}
 invalid_configuration:
@@ -17,13 +14,10 @@ invalid_configuration:
     - comment: "Please don't have a master, data, or client node on a config only node"
 {% endif %}
 
-start_elasticsearch:
+elasticsearch-svc:
   service:
     - dead
     - name: elasticsearch
     - enable: false
     - require:
       - pkg: elasticsearch
-    - watch:
-      - file: /etc/elasticsearch/elasticsearch.yml
-      - file: elasticsearch_default_config

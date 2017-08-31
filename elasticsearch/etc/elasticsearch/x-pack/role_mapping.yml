@@ -1,0 +1,28 @@
+# Role mapping configuration file which has elasticsearch roles as keys
+# that map to one or more user or group distinguished names
+
+#roleA:   this is an elasticsearch role
+#  - groupA-DN  this is a group distinguished name
+#  - groupB-DN
+#  - user1-DN   this is the full user distinguished name
+
+#power_user:
+#  - "cn=admins,dc=example,dc=com"
+#user:
+#  - "cn=users,dc=example,dc=com"
+#  - "cn=admins,dc=example,dc=com"
+#  - "cn=John Doe,cn=other users,dc=example,dc=com"
+
+# Give all the config_only nodes admin access
+{% set client_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.config_only', 'grains.items', 'compound').values() %}
+{% set kibana_nodes = salt['mine.get']('G@stack_id:' ~ grains.stack_id ~ ' and G@roles:elasticsearch.kibana', 'grains.items', 'compound').values() %}
+# Give clients superuser privs for now
+superuser:
+  {% for node in client_nodes -%}
+  - 'CN={{ node.fqdn }},OU=stackd.io,O=Digital Reasoning Systems\, Inc,L=Franklin,ST=Tennessee,C=US'
+  {% endfor %}
+
+kibana_system:
+  {% for node in kibana_nodes -%}
+  - 'CN={{ node.fqdn }},OU=stackd.io,O=Digital Reasoning Systems\, Inc,L=Franklin,ST=Tennessee,C=US'
+  {% endfor %}
