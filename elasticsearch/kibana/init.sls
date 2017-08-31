@@ -4,7 +4,7 @@
 {% set kibana_major_version = kibana_version.split('.')[0] | int %}
 {% set shield = salt['pillar.get']('elasticsearch:encrypted', False) %}
 
-{% if es_version >= 5 %}
+{% if es_major_version >= 5 %}
   {% set kibana_home = '/usr/share/kibana' %}
   {% set kibana_config = '/etc/kibana' %}
   {% set kibana_plugins = '/usr/share/kibana/plugins' %}
