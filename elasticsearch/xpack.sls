@@ -39,7 +39,7 @@ install-x-pack:
     - require_in:
       - service: elasticsearch-svc
 
-{% if elasticsearch.xpack.security.enabled %}
+{% if pillar.elasticsearch.xpack.security.enabled %}
 /etc/elasticsearch/elasticsearch.key:
   file:
     - managed
