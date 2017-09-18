@@ -43,10 +43,13 @@ bootstrap.memory_lock: true
 {% if pillar.elasticsearch.xpack.install %}
 # X-Pack settings
 xpack:
+  {% if pillar.elasticsearch.xpack.security.enabled %}
   ssl:
     key: /etc/elasticsearch/elasticsearch.key
     certificate: /etc/elasticsearch/elasticsearch.crt
     certificate_authorities: /etc/elasticsearch/ca.crt
+
+  {% endif %}
 
   graph.enabled: {{ pillar.elasticsearch.xpack.graph.enabled | json }}
   ml.enabled: {{ pillar.elasticsearch.xpack.ml.enabled | json }}
@@ -67,6 +70,7 @@ xpack:
 
   security:
     enabled: {{ pillar.elasticsearch.xpack.security.enabled | json }}
+  {% if pillar.elasticsearch.xpack.security.enabled %}
     audit.enabled: true
     http.ssl:
       enabled: true
@@ -85,6 +89,8 @@ xpack:
         pki:
           type: pki
           order: 2
+  {% endif %}
+
 {% endif %}
 
 thread_pool.bulk.queue_size: 1000
