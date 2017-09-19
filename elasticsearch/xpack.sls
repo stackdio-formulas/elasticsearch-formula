@@ -39,6 +39,7 @@ install-x-pack:
     - require_in:
       - service: elasticsearch-svc
 
+{% if pillar.elasticsearch.xpack.security.enabled %}
 /etc/elasticsearch/elasticsearch.key:
   file:
     - managed
@@ -90,6 +91,8 @@ role-mapping:
       - file: /etc/elasticsearch/x-pack
     - watch_in:
       - service: elasticsearch-svc
+
+{% endif %}
 
 {% if es_major_version >= 6 and 'elasticsearch.config_only' not in grains.roles %}
 
