@@ -40,7 +40,7 @@ install-x-pack:
       - service: elasticsearch-svc
 
 {% if pillar.elasticsearch.xpack.security.enabled %}
-/etc/elasticsearch/elasticsearch.key:
+/etc/elasticsearch/x-pack/elasticsearch.key:
   file:
     - managed
     - user: root
@@ -52,7 +52,7 @@ install-x-pack:
     - watch_in:
       - service: elasticsearch-svc
 
-/etc/elasticsearch/elasticsearch.crt:
+/etc/elasticsearch/x-pack/elasticsearch.crt:
   file:
     - managed
     - user: root
@@ -64,7 +64,7 @@ install-x-pack:
     - watch_in:
       - service: elasticsearch-svc
 
-/etc/elasticsearch/chained.crt:
+/etc/elasticsearch/x-pack/chained.crt:
   file:
     - managed
     - user: root
@@ -76,7 +76,7 @@ install-x-pack:
     - watch_in:
       - service: elasticsearch-svc
 
-/etc/elasticsearch/ca.crt:
+/etc/elasticsearch/x-pack/ca.crt:
   file:
     - managed
     - user: root
@@ -92,20 +92,20 @@ create-pkcs12:
   cmd:
     - run
     - user: root
-    - name: openssl pkcs12 -export -in /etc/elasticsearch/elasticsearch.crt -certfile /etc/elasticsearch/chained.crt -inkey /etc/elasticsearch/elasticsearch.key -out /etc/elasticsearch/elasticsearch.pkcs12 -name {{ grains.id }} -password pass:elasticsearch
+    - name: openssl pkcs12 -export -in /etc/elasticsearch/x-pack/elasticsearch.crt -certfile /etc/elasticsearch/x-pack/chained.crt -inkey /etc/elasticsearch/x-pack/elasticsearch.key -out /etc/elasticsearch/x-pack/elasticsearch.pkcs12 -name {{ grains.id }} -password pass:elasticsearch
     - require:
-      - file: /etc/elasticsearch/chained.crt
-      - file: /etc/elasticsearch/elasticsearch.crt
-      - file: /etc/elasticsearch/elasticsearch.key
+      - file: /etc/elasticsearch/x-pack/chained.crt
+      - file: /etc/elasticsearch/x-pack/elasticsearch.crt
+      - file: /etc/elasticsearch/x-pack/elasticsearch.key
 
 create-truststore:
   cmd:
     - run
     - user: root
-    - name: /usr/java/latest/bin/keytool -importcert -keystore /etc/elasticsearch/elasticsearch.truststore -storepass elasticsearch -file /etc/elasticsearch/ca.crt -alias root-ca -noprompt
-    - unless: /usr/java/latest/bin/keytool -list -keystore /etc/elasticsearch/elasticsearch.truststore -storepass elasticsearch | grep root-ca
+    - name: /usr/java/latest/bin/keytool -importcert -keystore /etc/elasticsearch/x-pack/elasticsearch.truststore -storepass elasticsearch -file /etc/elasticsearch/x-pack/ca.crt -alias root-ca -noprompt
+    - unless: /usr/java/latest/bin/keytool -list -keystore /etc/elasticsearch/x-pack/elasticsearch.truststore -storepass elasticsearch | grep root-ca
     - require:
-      - file: /etc/elasticsearch/ca.crt
+      - file: /etc/elasticsearch/x-pack/ca.crt
     - require_in:
       - service: elasticsearch-svc
 
@@ -113,8 +113,8 @@ create-keystore:
   cmd:
     - run
     - user: root
-    - name: /usr/java/latest/bin/keytool -importkeystore -srckeystore /etc/elasticsearch/elasticsearch.pkcs12 -srcstorepass elasticsearch -srcstoretype pkcs12 -destkeystore /etc/elasticsearch/elasticsearch.keystore -deststorepass elasticsearch
-    - unless: /usr/java/latest/bin/keytool -list -keystore /etc/elasticsearch/elasticsearch.keystore -storepass elasticsearch | grep {{ grains.id }}
+    - name: /usr/java/latest/bin/keytool -importkeystore -srckeystore /etc/elasticsearch/x-pack/elasticsearch.pkcs12 -srcstorepass elasticsearch -srcstoretype pkcs12 -destkeystore /etc/elasticsearch/x-pack/elasticsearch.keystore -deststorepass elasticsearch
+    - unless: /usr/java/latest/bin/keytool -list -keystore /etc/elasticsearch/x-pack/elasticsearch.keystore -storepass elasticsearch | grep {{ grains.id }}
     - require:
       - cmd: create-pkcs12
     - require_in:
@@ -124,7 +124,7 @@ chmod-keystore:
   cmd:
     - run
     - user: root
-    - name: chmod {% if 'elasticsearch.config_only' in grains.roles %}444{% else %}400{% endif %} /etc/elasticsearch/elasticsearch.keystore
+    - name: chmod {% if 'elasticsearch.config_only' in grains.roles %}444{% else %}400{% endif %} /etc/elasticsearch/x-pack/elasticsearch.keystore
     - require:
       - cmd: create-keystore
     - require_in:
@@ -134,7 +134,7 @@ chown-keystore:
   cmd:
     - run
     - user: root
-    - name: chown elasticsearch:elasticsearch /etc/elasticsearch/elasticsearch.keystore
+    - name: chown elasticsearch:elasticsearch /etc/elasticsearch/x-pack/elasticsearch.keystore
     - require:
       - cmd: create-keystore
       - cmd: chmod-keystore
