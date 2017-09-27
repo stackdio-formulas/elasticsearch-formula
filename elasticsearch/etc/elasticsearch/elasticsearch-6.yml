@@ -43,10 +43,22 @@ bootstrap.memory_lock: true
 {% if pillar.elasticsearch.xpack.install %}
 # X-Pack settings
 xpack:
+  {% if pillar.elasticsearch.xpack.security.enabled %}
   ssl:
-    key: /etc/elasticsearch/elasticsearch.key
-    certificate: /etc/elasticsearch/elasticsearch.crt
-    certificate_authorities: /etc/elasticsearch/ca.crt
+#    key: /etc/elasticsearch/elasticsearch.key
+#    certificate: /etc/elasticsearch/chained.crt
+#    certificate_authorities:
+#      - /etc/elasticsearch/ca.crt
+
+    keystore:
+      path: /etc/elasticsearch/elasticsearch.keystore
+      password: elasticsearch
+      key_password: elasticsearch
+    truststore:
+      path: /etc/elasticsearch/elasticsearch.truststore
+      password: elasticsearch
+
+  {% endif %}
 
   graph.enabled: {{ pillar.elasticsearch.xpack.graph.enabled | json }}
   ml.enabled: {{ pillar.elasticsearch.xpack.ml.enabled | json }}
@@ -73,6 +85,7 @@ xpack:
       client_authentication: optional
     transport.ssl:
       client_authentication: required
+    {% if 'elasticsearch.config_only' not in grains.roles %}
     authc:
       # Just disable the token for now
       token:
@@ -88,11 +101,12 @@ xpack:
         pki:
           type: pki
           order: 2
+    {% endif %}
 {% endif %}
 
 thread_pool.bulk.queue_size: 1000
 
-{% if pillar.elasticsearch.aws.install %}
+{% if pillar.elasticsearch.aws.install and 'elasticsearch.config_only' not in grains.roles %}
 cloud.node.auto_attributes: true
 
 # Do routing based on the AZ

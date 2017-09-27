@@ -45,10 +45,10 @@ bootstrap.memory_lock: true
 xpack:
   {% if pillar.elasticsearch.xpack.security.enabled %}
   ssl:
-    key: /etc/elasticsearch/elasticsearch.key
-    certificate: /etc/elasticsearch/chained.crt
-    certificate_authorities:
-      - /etc/elasticsearch/ca.crt
+#    key: /etc/elasticsearch/elasticsearch.key
+#    certificate: /etc/elasticsearch/chained.crt
+#    certificate_authorities:
+#      - /etc/elasticsearch/ca.crt
 
     keystore:
       path: /etc/elasticsearch/elasticsearch.keystore
