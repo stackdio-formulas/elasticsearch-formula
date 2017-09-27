@@ -46,8 +46,17 @@ xpack:
   {% if pillar.elasticsearch.xpack.security.enabled %}
   ssl:
     key: /etc/elasticsearch/elasticsearch.key
-    certificate: /etc/elasticsearch/elasticsearch.crt
-    certificate_authorities: /etc/elasticsearch/ca.crt
+    certificate: /etc/elasticsearch/chained.crt
+    certificate_authorities:
+      - /etc/elasticsearch/ca.crt
+
+    keystore:
+      path: /etc/elasticsearch/elasticsearch.keystore
+      password: elasticsearch
+      key_password: elasticsearch
+    truststore:
+      path: /etc/elasticsearch/elasticsearch.truststore
+      password: elasticsearch
 
   {% endif %}
 
@@ -78,6 +87,7 @@ xpack:
     transport.ssl:
       enabled: true
       client_authentication: required
+    {% if 'elasticsearch.config_only' not in grains.roles %}
     authc:
       realms:
         native:
@@ -89,13 +99,14 @@ xpack:
         pki:
           type: pki
           order: 2
+    {% endif %}
   {% endif %}
 
 {% endif %}
 
 thread_pool.bulk.queue_size: 1000
 
-{% if pillar.elasticsearch.aws.install %}
+{% if pillar.elasticsearch.aws.install and 'elasticsearch.config_only' not in grains.roles %}
 cloud:
   node:
     auto_attributes: true
