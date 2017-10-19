@@ -157,6 +157,7 @@ role-mapping:
     - watch_in:
       - service: elasticsearch-svc
 
+{% if es_major_version >= 6 %}
 # Set the keystore passwords
 set-keystore-password:
   cmd:
@@ -196,6 +197,7 @@ set-truststore-password:
     - require_in:
       - file: keystore-permissions
       - service: elasticsearch-svc
+{% endif %}
 
 {% endif %}
 

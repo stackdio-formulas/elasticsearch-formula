@@ -52,8 +52,11 @@ xpack:
 
     keystore:
       path: /etc/elasticsearch/x-pack/elasticsearch.keystore
+      password: elasticsearch
+      key_password: elasticsearch
     truststore:
       path: /etc/elasticsearch/x-pack/elasticsearch.truststore
+      password: elasticsearch
 
   {% endif %}
 
