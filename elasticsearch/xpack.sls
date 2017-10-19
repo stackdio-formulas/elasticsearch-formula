@@ -157,16 +157,56 @@ role-mapping:
     - watch_in:
       - service: elasticsearch-svc
 
+# Set the keystore passwords
+set-keystore-password:
+  cmd:
+    - run
+    - user: root
+    - name: 'echo "elasticsearch" | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin xpack.ssl.keystore.password'
+    - unless: '/usr/share/elasticsearch/bin/elasticsearch-keystore list | grep xpack.ssl.keystore.password'
+    - require:
+      - pkg: elasticsearch
+      - cmd: create-es-keystore
+    - require_in:
+      - file: keystore-permissions
+      - service: elasticsearch-svc
+
+set-keystore-key-password:
+  cmd:
+    - run
+    - user: root
+    - name: 'echo "elasticsearch" | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin xpack.ssl.keystore.key_password'
+    - unless: '/usr/share/elasticsearch/bin/elasticsearch-keystore list | grep xpack.ssl.keystore.key_password'
+    - require:
+      - pkg: elasticsearch
+      - cmd: create-es-keystore
+    - require_in:
+      - file: keystore-permissions
+      - service: elasticsearch-svc
+
+set-truststore-password:
+  cmd:
+    - run
+    - user: root
+    - name: 'echo "elasticsearch" | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin xpack.ssl.truststore.password'
+    - unless: '/usr/share/elasticsearch/bin/elasticsearch-keystore list | grep xpack.ssl.truststore.password'
+    - require:
+      - pkg: elasticsearch
+      - cmd: create-es-keystore
+    - require_in:
+      - file: keystore-permissions
+      - service: elasticsearch-svc
+
 {% endif %}
 
 {% if es_major_version >= 6 and 'elasticsearch.config_only' not in grains.roles %}
 
 # Set a password in the ES keystore (only if we're not a config only node)
-set-password:
+set-bootstrap-password:
   cmd:
     - run
     - user: root
-    - name: 'echo "123456" | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin bootstrap.password'
+    - name: 'echo "changeme" | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin bootstrap.password'
     - unless: '/usr/share/elasticsearch/bin/elasticsearch-keystore list | grep bootstrap.password'
     - require:
       - pkg: elasticsearch
