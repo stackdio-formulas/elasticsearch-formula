@@ -45,11 +45,11 @@ pillar_defaults:
         xpack:
             # Only valid in ES 5
             install: true
-            # Enable everything by default
+            # Enable a few things by default
             graph:
-                enabled: true
+                enabled: false
             ml:
-                enabled: true
+                enabled: false
             monitoring:
                 enabled: true
                 exporter:
