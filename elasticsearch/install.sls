@@ -121,6 +121,9 @@ elasticsearch_env:
 
 {% endfor %}
 
+{# END non config-only nodes #}
+{% endif %}
+
 {% if es_major_version >= 5 %}
 
 # Create the ES keystore
@@ -142,7 +145,7 @@ keystore-permissions:
     - name: /etc/elasticsearch/elasticsearch.keystore
     - user: root
     - group: elasticsearch
-    - mode: {% if 'elasticsearch.config_only' in grains.roles %}446{% else %}660{% endif %}
+    - mode: {% if config_only %}664{% else %}660{% endif %}
     - require:
       - pkg: elasticsearch
       - cmd: create-es-keystore
@@ -173,6 +176,4 @@ keystore-permissions:
       - pkg: elasticsearch
     - require_in:
       - service: elasticsearch-svc
-{% endif %}
-
 {% endif %}
