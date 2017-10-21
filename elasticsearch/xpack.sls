@@ -157,14 +157,14 @@ role-mapping:
     - watch_in:
       - service: elasticsearch-svc
 
-{% if es_major_version >= 6 %}
+{% if es_major_version >= 5 %}
 # Set the keystore passwords
 set-keystore-password:
   cmd:
     - run
     - user: root
-    - name: 'echo "elasticsearch" | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin xpack.ssl.keystore.password'
-    - unless: '/usr/share/elasticsearch/bin/elasticsearch-keystore list | grep xpack.ssl.keystore.password'
+    - name: 'echo "elasticsearch" | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin xpack.ssl.keystore.secure_password'
+    - unless: '/usr/share/elasticsearch/bin/elasticsearch-keystore list | grep xpack.ssl.keystore.secure_password'
     - require:
       - pkg: elasticsearch
       - cmd: create-es-keystore
@@ -176,8 +176,8 @@ set-keystore-key-password:
   cmd:
     - run
     - user: root
-    - name: 'echo "elasticsearch" | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin xpack.ssl.keystore.key_password'
-    - unless: '/usr/share/elasticsearch/bin/elasticsearch-keystore list | grep xpack.ssl.keystore.key_password'
+    - name: 'echo "elasticsearch" | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin xpack.ssl.keystore.secure_key_password'
+    - unless: '/usr/share/elasticsearch/bin/elasticsearch-keystore list | grep xpack.ssl.keystore.secure_key_password'
     - require:
       - pkg: elasticsearch
       - cmd: create-es-keystore
@@ -189,8 +189,8 @@ set-truststore-password:
   cmd:
     - run
     - user: root
-    - name: 'echo "elasticsearch" | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin xpack.ssl.truststore.password'
-    - unless: '/usr/share/elasticsearch/bin/elasticsearch-keystore list | grep xpack.ssl.truststore.password'
+    - name: 'echo "elasticsearch" | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin xpack.ssl.truststore.secure_password'
+    - unless: '/usr/share/elasticsearch/bin/elasticsearch-keystore list | grep xpack.ssl.truststore.secure_password'
     - require:
       - pkg: elasticsearch
       - cmd: create-es-keystore
