@@ -1,4 +1,5 @@
 {%- set client = 'elasticsearch.client' in grains.roles -%}
+{%- set config_only = 'elasticsearch.config_only' in grains.roles -%}
 
 {# We can only be a master or data node if we're not a client node #}
 {%- set master = 'elasticsearch.master' in grains.roles and not client -%}
@@ -14,8 +15,11 @@
 # Naming
 cluster.name: {{ grains.namespace }}
 node.name: {{ grains.id }}
+{# Leave out node settings on config nodes #}
+{% if not config_only %}
 node.master: {{ master | lower }}
 node.data: {{ data | lower }}
+{% endif %}
 
 # Network settings
 network.host: {{ grains.fqdn }}
@@ -29,6 +33,8 @@ discovery.zen.ping.unicast.hosts:
   - {{ node.fqdn }}:{{ pillar.elasticsearch.tcp_port }}
   {% endfor %}
 
+{# Leave out recovery settings on config nodes #}
+{% if not config_only %}
 # Recovery settings - this should help A LOT when restarting clusters.
 gateway.recover_after_time: 1m
 gateway.recover_after_nodes: {{ (num_data_nodes * 0.85) | int }}
@@ -39,6 +45,7 @@ path.logs: /mnt/elasticsearch/logs
 
 # Disable the JVM from being swapped out
 bootstrap.memory_lock: true
+{% endif %}
 
 {% if pillar.elasticsearch.xpack.install %}
 # X-Pack settings
@@ -57,6 +64,7 @@ xpack:
 
   {% endif %}
 
+  {% if not config_only %}
   graph.enabled: {{ pillar.elasticsearch.xpack.graph.enabled | json }}
   ml.enabled: {{ pillar.elasticsearch.xpack.ml.enabled | json }}
   watcher.enabled: {{ pillar.elasticsearch.xpack.watcher.enabled | json }}
@@ -73,16 +81,19 @@ xpack:
           username: '{{ pillar.elasticsearch.xpack.monitoring.exporter.username }}'
           password: '{{ pillar.elasticsearch.xpack.monitoring.exporter.password }}'
     {% endif %}
+  {% endif %}
 
   security:
     enabled: {{ pillar.elasticsearch.xpack.security.enabled | json }}
+
+    {% if pillar.elasticsearch.xpack.security.enabled %}
     audit.enabled: true
     http.ssl:
       enabled: true
       client_authentication: optional
     transport.ssl:
       client_authentication: required
-    {% if 'elasticsearch.config_only' not in grains.roles %}
+    {% if not config_only %}
     authc:
       # Just disable the token for now
       token:
@@ -99,11 +110,12 @@ xpack:
           type: pki
           order: 2
     {% endif %}
+    {% endif %}
 {% endif %}
 
 thread_pool.bulk.queue_size: 1000
 
-{% if pillar.elasticsearch.aws.install and 'elasticsearch.config_only' not in grains.roles %}
+{% if pillar.elasticsearch.aws.install and not config_only %}
 cloud.node.auto_attributes: true
 
 # Do routing based on the AZ
