@@ -99,6 +99,7 @@ convert-to-jks:
     - run
     - user: root
     - name: echo 'elasticsearch' | openssl pkcs12 -export -name {{ grains.id }} -in /etc/elasticsearch/server.crt -inkey /etc/elasticsearch/server.key -out /etc/elasticsearch/elasticsearch.pkcs12 -password stdin
+    - creates:  /etc/elasticsearch/elasticsearch.pkcs12
     - require:
       - file: /etc/elasticsearch/server.crt
       - file: /etc/elasticsearch/server.key
