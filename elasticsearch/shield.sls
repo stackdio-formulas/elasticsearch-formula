@@ -109,6 +109,7 @@ create-keystore:
     - run
     - user: root
     - name: '$JAVA_HOME/bin/keytool -importkeystore -srckeystore /etc/elasticsearch/elasticsearch.pkcs12 -destkeystore /etc/elasticsearch/elasticsearch.keystore -srcstoretype pkcs12 -srcalias {{ grains.id }} -destalias {{ grains.id }} -srcstorepass elasticsearch -deststorepass elasticsearch -destkeypass elasticsearch -noprompt'
+    - creates: /etc/elasticsearch/elasticsearch.keystore
     - require:
       - cmd: convert-to-jks
 
