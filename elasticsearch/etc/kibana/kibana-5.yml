@@ -82,6 +82,10 @@ elasticsearch.ssl.certificateAuthorities: [ "/etc/kibana/ca.crt" ]
 elasticsearch.ssl.verificationMode: full
 {% endif %}
 
+{% if pillar.elasticsearch.xpack.reporting.enabled %}
+xpack.reporting.encryptionKey: "{{ pillar.elasticsearch.xpack.reporting.encryption_key }}"
+{% endif %}
+
 {% endif %}
 
 # Time in milliseconds to wait for Elasticsearch to respond to pings. Defaults to the value of

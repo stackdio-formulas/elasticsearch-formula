@@ -58,6 +58,7 @@ pillar_defaults:
                     password:
             reporting:
                 enabled: true
+                encryption_key: '123456'
             security:
                 enabled: false
             watcher:
