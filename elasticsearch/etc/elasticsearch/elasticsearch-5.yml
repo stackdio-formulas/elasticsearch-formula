@@ -109,6 +109,16 @@ xpack:
     {% endif %}
     {% endif %}
 
+  notification.email:
+    default_account: localhost
+    account:
+      localhost:
+        email_defaults:
+          from: elasticsearch@{{ grains.fqdn }}
+        smtp:
+          host: localhost
+          port: 25
+
 {% endif %}
 
 thread_pool.bulk.queue_size: 1000
