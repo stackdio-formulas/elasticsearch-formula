@@ -23,7 +23,7 @@ components:
 
 pillar_defaults:
     elasticsearch:
-        version: 5.5.2
+        version: 5.6.11
         http_port: 9200
         tcp_port: 9300
         master_heap_size: 2g
@@ -68,3 +68,7 @@ pillar_defaults:
             region:
             access_key:
             secret_key:
+        hdfs:
+            install: true
+            kerberos:
+                enabled: false

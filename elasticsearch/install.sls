@@ -30,6 +30,10 @@ include:
   - elasticsearch.aws
   {% endif %}
 
+  {% if pillar.elasticsearch.hdfs.install %}
+  - elasticsearch.hdfs
+  {% endif %}
+
 
 elasticsearch:
   pkg:
