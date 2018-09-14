@@ -77,6 +77,11 @@
 -Dlog4j2.disable.jmx=true
 -Dlog4j.skipJansi=true
 
+{% if pillar.elasticsearch.hdfs.kerberos.enabled %}
+# kerberos
+-Djava.security.krb5.conf={{ pillar.krb5.conf_file }}
+{% endif %}
+
 ## heap dumps
 
 # generate a heap dump when an allocation from the Java heap fails
