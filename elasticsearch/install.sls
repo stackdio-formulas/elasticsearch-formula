@@ -30,6 +30,10 @@ include:
   - elasticsearch.aws
   {% endif %}
 
+  {% if pillar.elasticsearch.icu.install %}
+  - elasticsearch.icu
+  {% endifif %}
+
 
 elasticsearch:
   pkg:

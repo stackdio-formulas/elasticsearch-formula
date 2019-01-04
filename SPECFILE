@@ -18,7 +18,7 @@ components:
     description: Kibana server for visualization
     sls_path: elasticsearch.kibana
   - title: Elasticsearch Monitoring Client
-    description: Monitoring with Sensu for ES client addons 
+    description: Monitoring with Sensu for ES client addons
     sls_path: elasticsearch.monitor
 
 pillar_defaults:
@@ -68,3 +68,5 @@ pillar_defaults:
             region:
             access_key:
             secret_key:
+        icu:
+            install: false
