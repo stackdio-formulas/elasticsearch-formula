@@ -32,7 +32,7 @@ include:
 
   {% if pillar.elasticsearch.icu.install %}
   - elasticsearch.icu
-  {% endifif %}
+  {% endif %}
 
 
 elasticsearch:
