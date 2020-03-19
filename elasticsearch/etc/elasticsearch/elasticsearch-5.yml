@@ -20,6 +20,9 @@ node.name: {{ grains.id }}
 node.master: {{ master | lower }}
 node.data: {{ data | lower }}
 {% endif %}
+{% pillar.elasticsearch.seccomp %}
+bootstrap.system_call_filter: false
+{% endif %}
 
 # Network settings
 network.host: {{ grains.fqdn }}

@@ -29,6 +29,7 @@ pillar_defaults:
         master_heap_size: 2g
         heap_size: 2g
         replicas: 2
+        seccomp: false
         marvel:
             # Only valid in ES 2
             install: true
