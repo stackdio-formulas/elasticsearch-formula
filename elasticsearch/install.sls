@@ -165,7 +165,7 @@ keystore-permissions:
     - text:
       - elasticsearch - memlock unlimited
       - root - memlock unlimited
-      - elasticsearch - nproc 655350
+      - elasticsearch - nproc 65536
     - require_in:
       - service: elasticsearch-svc
 
