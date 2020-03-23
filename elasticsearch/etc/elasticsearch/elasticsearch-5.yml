@@ -20,7 +20,7 @@ node.name: {{ grains.id }}
 node.master: {{ master | lower }}
 node.data: {{ data | lower }}
 {% endif %}
-{% pillar.elasticsearch.seccomp %}
+{% if pillar.elasticsearch.seccomp %}
 bootstrap.system_call_filter: false
 {% endif %}
 
